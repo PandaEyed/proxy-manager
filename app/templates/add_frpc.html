@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Add FRPC{% endblock %}
+
+{% block content %}
+<h1>Add FRPC for FRPS ID: {{ frps_id }}</h1>
+<form method="POST" action="{{ url_for('main.add_frpc', frps_id=frps_id) }}">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.frpc_nickname.label(class_="form-label") }}
+        {{ form.frpc_nickname(class_="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.frpc_description.label(class_="form-label") }}
+        {{ form.frpc_description(class_="form-control", rows=3) }}
+    </div>
+    <div class="mb-3">
+        {{ form.frps_ports.label(class_="form-label") }}
+        {{ form.frps_ports(class_="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.supplier.label(class_="form-label") }}
+        {{ form.supplier(class_="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.user.label(class_="form-label") }}
+        {{ form.user(class_="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.health_check.label(class_="form-label") }}
+        {{ form.health_check(class_="form-control") }}
+    </div>
+    <button type="submit" class="btn btn-primary">Add FRPC</button>
+</form>
+{% endblock %}

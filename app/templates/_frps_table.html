@@ -1,0 +1,34 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>VMS ID</th>
+            <th>Internal IP</th>
+            <th>External IP</th>
+            <th>Group Name</th>
+            <th>Datacenter</th>
+            <th>ISP Line</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for frps in frps_list %}
+        <tr>
+            <td>{{ frps.id }}</td>
+            <td>{{ frps.vms_id }}</td>
+            <td>{{ frps.internal_ip }}</td>
+            <td>{{ frps.external_ip }}</td>
+            <td>{{ frps.group_name }}</td>
+            <td>{{ frps.datacenter }}</td>
+            <td>{{ frps.isp_line }}</td>
+            <td>
+                <a href="{{ url_for('main.add_frpc', frps_id=frps.id) }}" class="btn btn-sm btn-success">Add FRPC</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8" class="text-center">No FRPS found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

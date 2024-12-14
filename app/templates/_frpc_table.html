@@ -1,0 +1,30 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nickname</th>
+            <th>Description</th>
+            <th>FRPS Ports</th>
+            <th>Supplier</th>
+            <th>User</th>
+            <th>Health Check</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for frpc in frpc_list %}
+        <tr>
+            <td>{{ frpc.id }}</td>
+            <td>{{ frpc.frpc_nickname }}</td>
+            <td>{{ frpc.frpc_description }}</td>
+            <td>{{ frpc.frps_ports }}</td>
+            <td>{{ frpc.supplier }}</td>
+            <td>{{ frpc.user }}</td>
+            <td>{{ frpc.health_check }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7" class="text-center">No FRPC found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

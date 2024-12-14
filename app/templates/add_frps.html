@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Add FRPS{% endblock %}
+
+{% block content %}
+<h1>Add FRPS</h1>
+<form method="POST" action="{{ url_for('main.add_frps') }}">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.vms_id.label(class_="form-label") }}
+        {{ form.vms_id(class_="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.internal_ip.label(class_="form-label") }}
+        {{ form.internal_ip(class_="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.external_ip.label(class_="form-label") }}
+        {{ form.external_ip(class_="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.group_name.label(class_="form-label") }}
+        {{ form.group_name(class_="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.datacenter.label(class_="form-label") }}
+        {{ form.datacenter(class_="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.isp_line.label(class_="form-label") }}
+        {{ form.isp_line(class_="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.specific_line.label(class_="form-label") }}
+        {{ form.specific_line(class_="form-control") }}
+    </div>
+    <button type="submit" class="btn btn-primary">Add FRPS</button>
+</form>
+{% endblock %}
