@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Proxy List{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Proxy Management</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProxyModal">Add Proxy</button>
+</div>
+
+<!-- Search Bar -->
+<form class="d-flex mb-3" method="get" action="/">
+    <input type="text" name="search" class="form-control me-2" placeholder="Search..." value="{{ request.args.get('search', '') }}">
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+
+<!-- Proxy Table -->
+{% include "_proxy_table.html" %}
+
+<!-- Pagination -->
+{% include "_pagination.html" %}
+
+<!-- Add Proxy Modal -->
+{% include "_add_proxy_modal.html" %}
+{% endblock %}

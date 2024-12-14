@@ -1,0 +1,61 @@
+<div class="modal fade" id="addProxyModal" tabindex="-1" aria-labelledby="addProxyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProxyModalLabel">Add Proxy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/">
+                {{ form.hidden_tag() }}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.vms_id.label(class_="form-label") }}
+                            {{ form.vms_id(class_="form-control") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.internal_ip.label(class_="form-label") }}
+                            {{ form.internal_ip(class_="form-control") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.external_ip.label(class_="form-label") }}
+                            {{ form.external_ip(class_="form-control") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.group_name.label(class_="form-label") }}
+                            {{ form.group_name(class_="form-control") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.datacenter.label(class_="form-label") }}
+                            {{ form.datacenter(class_="form-control") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.isp_line.label(class_="form-label") }}
+                            {{ form.isp_line(class_="form-control") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.frpc_nickname.label(class_="form-label") }}
+                            {{ form.frpc_nickname(class_="form-control") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.user.label(class_="form-label") }}
+                            {{ form.user(class_="form-control") }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.frpc_description.label(class_="form-label") }}
+                        {{ form.frpc_description(class_="form-control", rows=3) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.remark_1.label(class_="form-label") }}
+                        {{ form.remark_1(class_="form-control", rows=3) }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    {{ form.submit(class_="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
