@@ -1,22 +1,53 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Proxy Management Dashboard</h1>
-
-<!-- Add FRPS Button -->
-<div class="mb-3">
-    <a href="{{ url_for('main.add_frps') }}" class="btn btn-primary">Add FRPS</a>
-</div>
-
-<!-- FRPS Table -->
-<h2>FRPS List</h2>
-{% include "_frps_table.html" %}
-
-<!-- FRPC Table -->
-<h2>FRPC List</h2>
-{% include "_frpc_table.html" %}
-
-
+<h1 class="mb-4">总看板</h1>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>FRPS ID</th>
+            <th>VMS ID</th>
+            <th>Internal IP</th>
+            <th>External IP</th>
+            <th>Group Name</th>
+            <th>Datacenter</th>
+            <th>ISP Line</th>
+            <th>FRPC Nickname</th>
+            <th>FRPC Description</th>
+            <th>FRPS Ports</th>
+            <th>Supplier</th>
+            <th>User</th>
+            <th>Health Check</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for frps in frps_list %}
+        <tr>
+            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.id }}</td>
+            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.vms_id }}</td>
+            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.internal_ip }}</td>
+            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.external_ip }}</td>
+            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.group_name }}</td>
+            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.datacenter }}</td>
+            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.isp_line }}</td>
+            {% if frps.frpcs %}
+            {% for frpc in frps.frpcs %}
+            <td>{{ frpc.frpc_nickname }}</td>
+            <td>{{ frpc.frpc_description }}</td>
+            <td>{{ frpc.frps_ports }}</td>
+            <td>{{ frpc.supplier }}</td>
+            <td>{{ frpc.user }}</td>
+            <td>{{ frpc.health_check }}</td>
+        </tr>
+        {% if not loop.last %}<tr>{% endif %}
+            {% endfor %}
+            {% else %}
+            <td colspan="6" class="text-center">No FRPCs</td>
+        </tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Optional, IPAddress, Length
+from wtforms import SelectField
+
 
 class AddFrpsForm(FlaskForm):
     vms_id = StringField("VMS ID", validators=[DataRequired(), Length(max=100)])
@@ -12,7 +14,14 @@ class AddFrpsForm(FlaskForm):
     specific_line = StringField("线路详情", validators=[Optional(), Length(max=100)])
     submit = SubmitField("提交")
 
+
 class AddFrpcForm(FlaskForm):
+    frps_id = SelectField(
+        "关联 FRPS",
+        coerce=int,
+        validators=[Optional()],
+        choices=[(0, "未关联")]  # 默认选项：未关联
+    )
     frpc_nickname = StringField("FRPC 昵称", validators=[Optional(), Length(max=100)])
     frpc_description = TextAreaField("FRPC 说明", validators=[Optional()])
     frps_ports = StringField("FRPS 占用端口", validators=[Optional(), Length(max=50)])
@@ -26,3 +35,16 @@ class AddFrpcForm(FlaskForm):
     remark_1 = TextAreaField("备注 1", validators=[Optional()])
     remark_2 = TextAreaField("备注 2", validators=[Optional()])
     submit = SubmitField("提交")
+
+
+class EditFrpsForm(FlaskForm):
+    vms_id = StringField("VMS ID", validators=[DataRequired(), Length(max=100)])
+    internal_ip = StringField("Internal IP", validators=[DataRequired()])
+    external_ip = StringField("External IP", validators=[DataRequired()])
+    submit = SubmitField("Save changes")
+
+
+class EditFrpcForm(FlaskForm):
+    frpc_nickname = StringField("Nickname", validators=[Length(max=100)])
+    frps_ports = StringField("FRPS Ports", validators=[Length(max=50)])
+    submit = SubmitField("Save changes")

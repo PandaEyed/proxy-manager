@@ -37,7 +37,7 @@ class TableFrpc(db.Model):
     remark_2 = db.Column(db.Text, nullable=True, comment="备注 2")
 
     # Foreign Key: Many FRPCs to One FRPS
-    frps_id = db.Column(db.Integer, db.ForeignKey('table_frps.id'), nullable=False, comment="FRPS ID")
+    frps_id = db.Column(db.Integer, db.ForeignKey('table_frps.id'), nullable=True, comment="FRPS ID")
 
     def __repr__(self):
         return f"<TableFrpc(id={self.id}, frpc_nickname={self.frpc_nickname})>"

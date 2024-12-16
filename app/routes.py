@@ -1,16 +1,33 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app import db
 from app.models import TableFrps, TableFrpc
-from app.forms import AddFrpsForm, AddFrpcForm
+from app.forms import AddFrpsForm, AddFrpcForm, EditFrpsForm, EditFrpcForm
 
 main = Blueprint('main', __name__)
 
-@main.route("/", methods=["GET", "POST"])
+# @main.route("/", methods=["GET", "POST"])
+# def index():
+#     """主页: 展示 table_frps 和 table_frpc 的数据"""
+#     frps_list = TableFrps.query.all()
+#     frpc_list = TableFrpc.query.all()
+#     return render_template("index.html", frps_list=frps_list, frpc_list=frpc_list)
+
+@main.route("/", methods=["GET"])
 def index():
-    """主页: 展示 table_frps 和 table_frpc 的数据"""
     frps_list = TableFrps.query.all()
+    return render_template("index.html", frps_list=frps_list, active_tab="dashboard")
+
+
+@main.route("/frps", methods=["GET"])
+def frps():
+    frps_list = TableFrps.query.all()
+    return render_template("frps.html", frps_list=frps_list, active_tab="frps")
+
+
+@main.route("/frpc", methods=["GET"])
+def frpc():
     frpc_list = TableFrpc.query.all()
-    return render_template("index.html", frps_list=frps_list, frpc_list=frpc_list)
+    return render_template("frpc.html", frpc_list=frpc_list, active_tab="frpc")
 
 @main.route("/add_frps", methods=["GET", "POST"])
 def add_frps():
@@ -32,11 +49,22 @@ def add_frps():
         return redirect(url_for("main.index"))
     return render_template("add_frps.html", form=form)
 
+
 @main.route("/add_frpc/<int:frps_id>", methods=["GET", "POST"])
+@main.route("/add_frpc", defaults={"frps_id": None}, methods=["GET", "POST"])
 def add_frpc(frps_id):
-    """添加 FRPC 数据，并关联到指定的 FRPS"""
+
+    # 初始化表单
     form = AddFrpcForm()
+
+    # 动态生成 FRPS 选项，添加未关联选项 (0 表示未关联)
+    form.frps_id.choices = [(0, "未关联")] + [
+        (frps.id, f"{frps.internal_ip} - {frps.vms_id}") for frps in TableFrps.query.all()
+    ]
+
+    # 如果表单提交并验证通过
     if form.validate_on_submit():
+        frps_id_selected = form.frps_id.data if form.frps_id.data != 0 else None
         frpc = TableFrpc(
             frpc_nickname=form.frpc_nickname.data,
             frpc_description=form.frpc_description.data,
@@ -50,10 +78,56 @@ def add_frpc(frps_id):
             health_check=form.health_check.data,
             remark_1=form.remark_1.data,
             remark_2=form.remark_2.data,
-            frps_id=frps_id
+            frps_id=frps_id_selected  # 设置关联的 FRPS ID 或 None
         )
         db.session.add(frpc)
         db.session.commit()
         flash("FRPC added successfully!", "success")
-        return redirect(url_for("main.index"))
+        return redirect(url_for("main.frpc"))
+
+    # 渲染模板
     return render_template("add_frpc.html", form=form, frps_id=frps_id)
+
+@main.route("/edit_frps/<int:frps_id>", methods=["POST"])
+def edit_frps(frps_id):
+    form = EditFrpsForm()
+    frps = TableFrps.query.get_or_404(frps_id)
+    if form.validate_on_submit():
+        frps.vms_id = form.vms_id.data
+        frps.internal_ip = form.internal_ip.data
+        frps.external_ip = form.external_ip.data
+        db.session.commit()
+        flash("FRPS updated successfully!", "success")
+    return redirect(url_for("main.frps"))
+
+
+@main.route("/delete_frps/<int:frps_id>", methods=["POST"])
+def delete_frps(frps_id):
+    frps = TableFrps.query.get_or_404(frps_id)
+    db.session.delete(frps)
+    db.session.commit()
+    flash("FRPS deleted successfully!", "success")
+    return redirect(url_for("main.frps"))
+
+
+@main.route("/edit_frpc/<int:frpc_id>", methods=["POST"])
+def edit_frpc(frpc_id):
+    form = EditFrpcForm()
+    frpc = TableFrpc.query.get_or_404(frpc_id)
+    if form.validate_on_submit():
+        frpc.frpc_nickname = form.frpc_nickname.data
+        frpc.frps_ports = form.frps_ports.data
+        db.session.commit()
+        flash("FRPC updated successfully!", "success")
+    return redirect(url_for("main.frpc"))
+
+
+
+@main.route("/delete_frpc/<int:frpc_id>", methods=["POST"])
+def delete_frpc(frpc_id):
+    """删除 FRPC 数据"""
+    frpc = TableFrpc.query.get_or_404(frpc_id)
+    db.session.delete(frpc)
+    db.session.commit()
+    flash("FRPC deleted successfully!", "success")
+    return redirect(url_for("main.frpc"))

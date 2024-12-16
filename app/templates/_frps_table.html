@@ -1,7 +1,6 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>ID</th>
             <th>VMS ID</th>
             <th>Internal IP</th>
             <th>External IP</th>
@@ -14,7 +13,6 @@
     <tbody>
         {% for frps in frps_list %}
         <tr>
-            <td>{{ frps.id }}</td>
             <td>{{ frps.vms_id }}</td>
             <td>{{ frps.internal_ip }}</td>
             <td>{{ frps.external_ip }}</td>
@@ -22,13 +20,52 @@
             <td>{{ frps.datacenter }}</td>
             <td>{{ frps.isp_line }}</td>
             <td>
-                <a href="{{ url_for('main.add_frpc', frps_id=frps.id) }}" class="btn btn-sm btn-success">Add FRPC</a>
+                <!-- Edit Button -->
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editFrpsModal{{ frps.id }}">
+                    Edit
+                </button>
+                <!-- Delete Button -->
+                <form method="POST" action="{{ url_for('main.delete_frps', frps_id=frps.id) }}" style="display: inline;">
+                    {{ form.hidden_tag() }}
+                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
             </td>
         </tr>
-        {% else %}
-        <tr>
-            <td colspan="8" class="text-center">No FRPS found.</td>
-        </tr>
+
+        <!-- Edit Modal -->
+        <div class="modal fade" id="editFrpsModal{{ frps.id }}" tabindex="-1" aria-labelledby="editFrpsModalLabel{{ frps.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="POST" action="{{ url_for('main.edit_frps', frps_id=frps.id) }}">
+                        {{ form.hidden_tag() }}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editFrpsModalLabel{{ frps.id }}">Edit FRPS</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Form Fields -->
+                            <div class="mb-3">
+                                <label for="vms_id_{{ frps.id }}" class="form-label">VMS ID</label>
+                                <input type="text" name="vms_id" id="vms_id_{{ frps.id }}" class="form-control" value="{{ frps.vms_id }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="internal_ip_{{ frps.id }}" class="form-label">Internal IP</label>
+                                <input type="text" name="internal_ip" id="internal_ip_{{ frps.id }}" class="form-control" value="{{ frps.internal_ip }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="external_ip_{{ frps.id }}" class="form-label">External IP</label>
+                                <input type="text" name="external_ip" id="external_ip_{{ frps.id }}" class="form-control" value="{{ frps.external_ip }}">
+                            </div>
+                            <!-- Add other fields as needed -->
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
         {% endfor %}
     </tbody>
 </table>

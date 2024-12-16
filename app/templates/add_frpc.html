@@ -3,9 +3,17 @@
 {% block title %}Add FRPC{% endblock %}
 
 {% block content %}
-<h1>Add FRPC for FRPS ID: {{ frps_id }}</h1>
+<h1 class="mb-4">Add FRPC</h1>
 <form method="POST" action="{{ url_for('main.add_frpc', frps_id=frps_id) }}">
     {{ form.hidden_tag() }}
+
+    <!-- 关联 FRPS -->
+    <div class="mb-3">
+        {{ form.frps_id.label(class_="form-label") }}
+        {{ form.frps_id(class_="form-control") }}
+    </div>
+
+    <!-- FRPC Fields -->
     <div class="mb-3">
         {{ form.frpc_nickname.label(class_="form-label") }}
         {{ form.frpc_nickname(class_="form-control") }}
@@ -30,6 +38,8 @@
         {{ form.health_check.label(class_="form-label") }}
         {{ form.health_check(class_="form-control") }}
     </div>
+
+    <!-- Submit -->
     <button type="submit" class="btn btn-primary">Add FRPC</button>
 </form>
 {% endblock %}
