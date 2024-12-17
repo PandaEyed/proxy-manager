@@ -5,13 +5,6 @@ from app.forms import AddFrpsForm, AddFrpcForm, EditFrpsForm, EditFrpcForm
 
 main = Blueprint('main', __name__)
 
-# @main.route("/", methods=["GET", "POST"])
-# def index():
-#     """主页: 展示 table_frps 和 table_frpc 的数据"""
-#     frps_list = TableFrps.query.all()
-#     frpc_list = TableFrpc.query.all()
-#     return render_template("index.html", frps_list=frps_list, frpc_list=frpc_list)
-
 @main.route("/", methods=["GET"])
 def index():
     frps_list = TableFrps.query.all()
@@ -21,13 +14,15 @@ def index():
 @main.route("/frps", methods=["GET"])
 def frps():
     frps_list = TableFrps.query.all()
-    return render_template("frps.html", frps_list=frps_list, active_tab="frps")
+    form = EditFrpsForm()  # 创建表单实例
+    return render_template("frps.html", frps_list=frps_list, form=form,active_tab="frps")
 
 
 @main.route("/frpc", methods=["GET"])
 def frpc():
     frpc_list = TableFrpc.query.all()
-    return render_template("frpc.html", frpc_list=frpc_list, active_tab="frpc")
+    form = EditFrpcForm()  # 创建表单实例
+    return render_template("frpc.html", frpc_list=frpc_list, form=form,active_tab="frpc")
 
 @main.route("/add_frps", methods=["GET", "POST"])
 def add_frps():

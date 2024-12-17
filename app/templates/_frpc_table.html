@@ -1,65 +1,75 @@
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Nickname</th>
-            <th>Description</th>
-            <th>FRPS Ports</th>
-            <th>Supplier</th>
-            <th>User</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for frpc in frpc_list %}
-        <tr>
-            <td>{{ frpc.frpc_nickname }}</td>
-            <td>{{ frpc.frpc_description }}</td>
-            <td>{{ frpc.frps_ports }}</td>
-            <td>{{ frpc.supplier }}</td>
-            <td>{{ frpc.user }}</td>
-            <td>
-                <!-- Edit Button -->
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editFrpcModal{{ frpc.id }}">
-                    Edit
-                </button>
-                <!-- Delete Button -->
-                <form method="POST" action="{{ url_for('main.delete_frpc', frpc_id=frpc.id) }}" style="display: inline;">
-                    {{ form.hidden_tag() }}
-                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
-                </form>
-            </td>
-        </tr>
+<div class="card mb-4">
+    <div class="card-header">
+        FRPC List
+        <a href="{{ url_for('main.add_frpc') }}" class="btn btn-sm btn-success float-end">
+            <i class="fas fa-plus"></i> Add FRPC
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Nickname</th>
+                    <th>Description</th>
+                    <th>FRPS Ports</th>
+                    <th>Supplier</th>
+                    <th>User</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for frpc in frpc_list %}
+                <tr>
+                    <td>{{ frpc.id }}</td>
+                    <td>{{ frpc.frpc_nickname }}</td>
+                    <td>{{ frpc.frpc_description }}</td>
+                    <td>{{ frpc.frps_ports }}</td>
+                    <td>{{ frpc.supplier }}</td>
+                    <td>{{ frpc.user }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editFrpcModal{{ frpc.id }}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <form method="POST" action="{{ url_for('main.delete_frpc', frpc_id=frpc.id) }}" style="display: inline;">
+                            {{ form.hidden_tag() }}
+                            <button class="btn btn-sm btn-danger" type="submit">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
 
-        <!-- Edit Modal -->
-        <div class="modal fade" id="editFrpcModal{{ frpc.id }}" tabindex="-1" aria-labelledby="editFrpcModalLabel{{ frpc.id }}" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form method="POST" action="{{ url_for('main.edit_frpc', frpc_id=frpc.id) }}">
-                        {{ form.hidden_tag() }}
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editFrpcModalLabel{{ frpc.id }}">Edit FRPC</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <!-- Insert Edit Modal for Each Row -->
+                <div class="modal fade" id="editFrpcModal{{ frpc.id }}" tabindex="-1" aria-labelledby="editFrpcModalLabel{{ frpc.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ url_for('main.edit_frpc', frpc_id=frpc.id) }}">
+                                {{ form.hidden_tag() }}
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editFrpcModalLabel{{ frpc.id }}">Edit FRPC</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="frpc_nickname_{{ frpc.id }}" class="form-label">Nickname</label>
+                                        <input type="text" name="frpc_nickname" id="frpc_nickname_{{ frpc.id }}" class="form-control" value="{{ frpc.frpc_nickname }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="frps_ports_{{ frpc.id }}" class="form-label">FRPS Ports</label>
+                                        <input type="text" name="frps_ports" id="frps_ports_{{ frpc.id }}" class="form-control" value="{{ frpc.frps_ports }}">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="modal-body">
-                            <!-- Form Fields -->
-                            <div class="mb-3">
-                                <label for="frpc_nickname_{{ frpc.id }}" class="form-label">Nickname</label>
-                                <input type="text" name="frpc_nickname" id="frpc_nickname_{{ frpc.id }}" class="form-control" value="{{ frpc.frpc_nickname }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="frps_ports_{{ frpc.id }}" class="form-label">FRPS Ports</label>
-                                <input type="text" name="frps_ports" id="frps_ports_{{ frpc.id }}" class="form-control" value="{{ frpc.frps_ports }}">
-                            </div>
-                            <!-- Add other fields as needed -->
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save changes</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
-        </div>
-        {% endfor %}
-    </tbody>
-</table>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

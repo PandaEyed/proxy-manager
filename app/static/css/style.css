@@ -1,0 +1,29 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.nav-link.active {
+    font-weight: bold;
+    color: #007bff !important;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: #007bff !important;
+}
+
+.card-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+footer {
+    background-color: #e9ecef;
+    padding: 20px 0;
+}
+
+.table-hover tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}

@@ -4,50 +4,61 @@
 
 {% block content %}
 <h1 class="mb-4">总看板</h1>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>FRPS ID</th>
-            <th>VMS ID</th>
-            <th>Internal IP</th>
-            <th>External IP</th>
-            <th>Group Name</th>
-            <th>Datacenter</th>
-            <th>ISP Line</th>
-            <th>FRPC Nickname</th>
-            <th>FRPC Description</th>
-            <th>FRPS Ports</th>
-            <th>Supplier</th>
-            <th>User</th>
-            <th>Health Check</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for frps in frps_list %}
-        <tr>
-            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.id }}</td>
-            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.vms_id }}</td>
-            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.internal_ip }}</td>
-            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.external_ip }}</td>
-            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.group_name }}</td>
-            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.datacenter }}</td>
-            <td rowspan="{{ frps.frpcs|length if frps.frpcs else 1 }}">{{ frps.isp_line }}</td>
-            {% if frps.frpcs %}
-            {% for frpc in frps.frpcs %}
-            <td>{{ frpc.frpc_nickname }}</td>
-            <td>{{ frpc.frpc_description }}</td>
-            <td>{{ frpc.frps_ports }}</td>
-            <td>{{ frpc.supplier }}</td>
-            <td>{{ frpc.user }}</td>
-            <td>{{ frpc.health_check }}</td>
-        </tr>
-        {% if not loop.last %}<tr>{% endif %}
-            {% endfor %}
-            {% else %}
-            <td colspan="6" class="text-center">No FRPCs</td>
-        </tr>
-            {% endif %}
-        {% endfor %}
-    </tbody>
-</table>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">总览</h5>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover table-striped mb-0" id="dashboardTable">
+            <thead class="table-light">
+                <tr>
+                    <th onclick="sortTable(0)" style="cursor: pointer;">VMS ID <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(1)" style="cursor: pointer;">Internal IP <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(2)" style="cursor: pointer;">External IP <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(3)" style="cursor: pointer;">Group Name <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(4)" style="cursor: pointer;">Datacenter <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(5)" style="cursor: pointer;">ISP Line <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(6)" style="cursor: pointer;">Capacity <i class="fas fa-sort"></i></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for frps in frps_list %}
+                {% set total_count = frps.frpcs|map(attribute='actual_count')|map('default', 0)|sum %}
+                {% set percent = (total_count / 1000 * 100) if total_count <= 1000 else 100 %}
+                {% set datacenter_colors = {
+                    'shaxy': '#1E90FF',
+                    'sharb': '#ADFF2F'
+                } %}
+                <tr>
+                    <td>{{ frps.vms_id }}</td>
+                    <td>{{ frps.internal_ip }}</td>
+                    <td>{{ frps.external_ip }}</td>
+                    <td>{{ frps.group_name }}</td>
+                    <td>
+                        <span style="display: inline-block; padding: 5px 10px; border-radius: 10px; background-color: {{ datacenter_colors.get(frps.datacenter.lower(), '#e0e0e0') }};">
+                            {{ frps.datacenter }}
+                        </span>
+                    </td>
+                    <td>{{ frps.isp_line }}</td>
+                    <td>
+                        <div class="progress" style="height: 25px; width: 200px; background-color: #f8f9fa;">
+                            <div class="progress-bar {% if percent > 75 %}bg-danger{% elif percent > 50 %}bg-primary{% elif percent==0 %}bg-info{% else %}bg-success{% endif %}"
+                                 role="progressbar"
+                                 style="width: {{ percent }}%; min-width: 30px;"
+                                 aria-valuenow="{{ percent }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                <span class="text-dark">
+                                    {{ total_count }}/1000
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

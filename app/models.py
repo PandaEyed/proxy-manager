@@ -31,7 +31,7 @@ class TableFrpc(db.Model):
     access_method = db.Column(db.String(50), nullable=True, comment="接入方式")
     user = db.Column(db.String(100), nullable=True, comment="用房")
     gost_address = db.Column(db.String(255), nullable=True, comment="Gost 地址")
-    actual_count = db.Column(db.Integer, nullable=True, default=0, comment="实际数量")
+    actual_count = db.Column(db.Integer, nullable=False, default=0, comment="实际数量")
     health_check = db.Column(db.String(50), nullable=True, comment="健康检测方式")
     remark_1 = db.Column(db.Text, nullable=True, comment="备注 1")
     remark_2 = db.Column(db.Text, nullable=True, comment="备注 2")
