@@ -2,7 +2,7 @@
     <div class="card-header">
         FRPC List
         <a href="{{ url_for('main.add_frpc') }}" class="btn btn-sm btn-success float-end">
-            <i class="fas fa-plus"></i> Add FRPC
+            <i class="bi bi-plus-circle"></i> Add FRPC
         </a>
     </div>
     <div class="card-body p-0">
@@ -28,13 +28,15 @@
                     <td>{{ frpc.supplier }}</td>
                     <td>{{ frpc.user }}</td>
                     <td>
+                        <!-- Edit Button -->
                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editFrpcModal{{ frpc.id }}">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil-square"></i>
                         </button>
+                        <!-- Delete Button -->
                         <form method="POST" action="{{ url_for('main.delete_frpc', frpc_id=frpc.id) }}" style="display: inline;">
                             {{ form.hidden_tag() }}
                             <button class="btn btn-sm btn-danger" type="submit">
-                                <i class="fas fa-trash-alt"></i>
+                                <i class="bi bi-trash"></i>
                             </button>
                         </form>
                     </td>

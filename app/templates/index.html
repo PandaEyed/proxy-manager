@@ -13,13 +13,12 @@
         <table class="table table-hover table-striped mb-0" id="dashboardTable">
             <thead class="table-light">
                 <tr>
-                    <th onclick="sortTable(0)" style="cursor: pointer;">VMS ID <i class="fas fa-sort"></i></th>
-                    <th onclick="sortTable(1)" style="cursor: pointer;">Internal IP <i class="fas fa-sort"></i></th>
-                    <th onclick="sortTable(2)" style="cursor: pointer;">External IP <i class="fas fa-sort"></i></th>
-                    <th onclick="sortTable(3)" style="cursor: pointer;">Group Name <i class="fas fa-sort"></i></th>
-                    <th onclick="sortTable(4)" style="cursor: pointer;">Datacenter <i class="fas fa-sort"></i></th>
-                    <th onclick="sortTable(5)" style="cursor: pointer;">ISP Line <i class="fas fa-sort"></i></th>
-                    <th onclick="sortTable(6)" style="cursor: pointer;">Capacity <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(0)" style="cursor: pointer;">VMS ID <i class="bi bi-arrow-down-up"></i></th>
+                    <th onclick="sortTable(1)" style="cursor: pointer;">内网 IP <i class="bi bi-arrow-down-up"></i></th>
+                    <th onclick="sortTable(2)" style="cursor: pointer;">公网 IP <i class="bi bi-arrow-down-up"></i></th>
+                    <th onclick="sortTable(3)" style="cursor: pointer;">机房 <i class="bi bi-arrow-down-up"></i></th>
+                    <th onclick="sortTable(4)" style="cursor: pointer;">容量 <i class="bi bi-arrow-down-up"></i></th>
+                    <th onclick="sortTable(5)" style="cursor: pointer;">Clients <i class="bi bi-arrow-down-up"></i></th>
                 </tr>
             </thead>
             <tbody>
@@ -34,26 +33,108 @@
                     <td>{{ frps.vms_id }}</td>
                     <td>{{ frps.internal_ip }}</td>
                     <td>{{ frps.external_ip }}</td>
-                    <td>{{ frps.group_name }}</td>
                     <td>
-                        <span style="display: inline-block; padding: 5px 10px; border-radius: 10px; background-color: {{ datacenter_colors.get(frps.datacenter.lower(), '#e0e0e0') }};">
+                        <span style="display: inline-block; padding: 5px 10px; border-radius: 10px; background-color: {{ datacenter_colors.get(frps.datacenter.lower(), '#e0e0e0') }}; font-size: 0.9rem; color: #000;">
                             {{ frps.datacenter }}
                         </span>
                     </td>
-                    <td>{{ frps.isp_line }}</td>
                     <td>
                         <div class="progress" style="height: 25px; width: 200px; background-color: #f8f9fa;">
-                            <div class="progress-bar {% if percent > 75 %}bg-danger{% elif percent > 50 %}bg-primary{% elif percent==0 %}bg-info{% else %}bg-success{% endif %}"
+                            <div class="progress-bar {% if percent > 75 %}bg-danger{% elif percent > 50 %}bg-primary{% elif percent == 0 %}bg-info{% else %}bg-success{% endif %}"
                                  role="progressbar"
                                  style="width: {{ percent }}%; min-width: 30px;"
                                  aria-valuenow="{{ percent }}"
                                  aria-valuemin="0"
                                  aria-valuemax="100">
-                                <span class="text-dark">
-                                    {{ total_count }}/1000
-                                </span>
+                                <span class="text-dark">{{ total_count }}</span>
                             </div>
                         </div>
+                    </td>
+                    <td>
+                        {% if frps.frpcs %}
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                {% for frpc in frps.frpcs %}
+                                    <!-- Button for each FRPC -->
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            data-bs-toggle="modal" data-bs-target="#frpcModal{{ frpc.id }}">
+                                        {{ frpc.frpc_nickname }}
+                                    </button>
+
+                                    <!-- Modal for displaying FRPC details -->
+                                    <div class="modal fade" id="frpcModal{{ frpc.id }}" tabindex="-1" aria-labelledby="frpcModalLabel{{ frpc.id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content" style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                                                <div class="modal-header bg-primary text-white" style="border-radius: 12px 12px 0 0;">
+                                                    <h5 class="modal-title" id="frpcModalLabel{{ frpc.id }}">FRPC 详情</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <ul class="list-unstyled" style="line-height: 1.8;">
+                                                        {% if frpc.frpc_nickname %}
+                                                        <li><strong>昵称 :</strong> {{ frpc.frpc_nickname }}</li>
+                                                        {% endif %}
+
+                                                        {% if frpc.frpc_description %}
+                                                        <li><strong>描述 :</strong> {{ frpc.frpc_description }}</li>
+                                                        {% endif %}
+
+                                                        {% if frpc.frps_ports %}
+                                                        <li><strong>端口占用 :</strong> {{ frpc.frps_ports }}</li>
+                                                        {% endif %}
+
+                                                        {% if frpc.supplier %}
+                                                        <li><strong>供应商 :</strong> {{ frpc.supplier }}</li>
+                                                        {% endif %}
+
+                                                        {% if frpc.supplier_delivery %}
+                                                        <li><strong>供应商交付内容 :</strong> {{ frpc.supplier_delivery }}</li>
+                                                        {% endif %}
+
+                                                        {% if frpc.access_method %}
+                                                        <li><strong>接入方式 :</strong> {{ frpc.access_method }}</li>
+                                                        {% endif %}
+
+                                                        {% if frpc.user %}
+                                                        <li><strong>使用方 :</strong> {{ frpc.user }}</li>
+                                                        {% endif %}
+
+                                                        {% if frpc.gost_address %}
+                                                        <li><strong>GOST 地址 :</strong> {{ frpc.gost_address }}</li>
+                                                        {% endif %}
+
+                                                        {% if frpc.health_check %}
+                                                        <li><strong>健康检测方式 :</strong> {{ frpc.health_check }}</li>
+                                                        {% endif %}
+
+                                                        {% if frpc.remark_1 and frpc.remark_2 %}
+                                                        <li><strong>备注 :</strong><br>
+                                                            <div style="margin-left: 15px;">
+                                                                <div>{{ frpc.remark_1 }}</div>
+                                                                <div>{{ frpc.remark_2 }}</div>
+                                                            </div>
+                                                        </li>
+                                                        {% else %}
+                                                            {% if frpc.remark_1 %}
+                                                            <li><strong>备注 :</strong> {{ frpc.remark_1 }}</li>
+                                                            {% endif %}
+
+                                                            {% if frpc.remark_2 %}
+                                                            <li><strong>备注 :</strong> {{ frpc.remark_2 }}</li>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </ul>
+                                                </div>
+                                                <div class="modal-footer" style="border-top: none;">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span class="text-muted">（ 空闲中 ）</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}

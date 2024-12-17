@@ -2,14 +2,13 @@
     <div class="card-header">
         FRPS List
         <a href="{{ url_for('main.add_frps') }}" class="btn btn-sm btn-success float-end">
-            <i class="fas fa-plus"></i> Add FRPS
+            <i class="bi bi-plus"></i> Add FRPS
         </a>
     </div>
     <div class="card-body p-0">
         <table class="table table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>ID</th>
                     <th>VMS ID</th>
                     <th>Internal IP</th>
                     <th>External IP</th>
@@ -22,7 +21,6 @@
             <tbody>
                 {% for frps in frps_list %}
                 <tr>
-                    <td>{{ frps.id }}</td>
                     <td>{{ frps.vms_id }}</td>
                     <td>{{ frps.internal_ip }}</td>
                     <td>{{ frps.external_ip }}</td>
@@ -32,13 +30,13 @@
                     <td>
                         <!-- Edit Button -->
                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editFrpsModal{{ frps.id }}">
-                            <i class="fas fa-edit"></i>
+                            <i class="bi bi-pencil-square"></i>
                         </button>
                         <!-- Delete Button -->
                         <form method="POST" action="{{ url_for('main.delete_frps', frps_id=frps.id) }}" style="display: inline;">
                             {{ form.hidden_tag() }}
                             <button class="btn btn-sm btn-danger" type="submit">
-                                <i class="fas fa-trash-alt"></i>
+                                <i class="bi bi-trash"></i>
                             </button>
                         </form>
                     </td>
