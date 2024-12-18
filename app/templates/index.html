@@ -3,11 +3,52 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">总看板</h1>
-
 <div class="card shadow-sm">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">统计信息</h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center mb-4">
+                <!-- 总机器数 -->
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 border rounded bg-light">
+                        <h6 class="text-muted">总机器数</h6>
+                        <p class="h4 fw-bold text-success">{{ frps_list|length }}</p>
+                    </div>
+                </div>
+                <!-- 代理总量 -->
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 border rounded bg-light">
+                        <h6 class="text-muted">代理总量</h6>
+                        <p class="h4 fw-bold text-success">
+                            {{ frps_list|map(attribute='frpcs')|map('sum', attribute='actual_count')|sum }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表展示区域 -->
+            <div class="row">
+                <!-- 数据中心占比 -->
+                <div class="col-md-6 mb-3">
+                    <div class="p-3">
+                        <h6 class="text-center mb-3">SHAXY 和 SHARB 占比</h6>
+                        <canvas id="datacenterChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+                <!-- 供应商占比 -->
+                <div class="col-md-6 mb-3">
+                    <div class="p-3">
+                        <h6 class="text-center mb-3">供应商占比</h6>
+                        <canvas id="supplierChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">总览</h5>
+        <h5 class="mb-0">详情</h5>
     </div>
     <div class="card-body p-0">
         <table class="table table-hover table-striped mb-0" id="dashboardTable">
@@ -142,4 +183,11 @@
         </table>
     </div>
 </div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    const datacenterCounts = {{ datacenter_counts | tojson | safe }};
+    const supplierCounts = {{ supplier_counts | tojson | safe }};
+</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}" defer></script>
 {% endblock %}

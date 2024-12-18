@@ -1,29 +1,107 @@
+/* 通用样式 */
 body {
+    margin: 0;
     font-family: 'Roboto', sans-serif;
     background-color: #f8f9fa;
 }
 
-.nav-link.active {
-    font-weight: bold;
-    color: #007bff !important;
+/* 主容器布局 */
+.min-vh-100 {
+    display: flex;
 }
 
-.navbar-brand {
-    font-weight: bold;
-    color: #007bff !important;
+/* 侧边栏样式 */
+.sidebar {
+    background-color: #343a40;
+    color: #fff;
+    width: 100px; /* 调整为更窄的宽度 */
+    height: 100vh;
+    transition: width 0.3s ease-in-out;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 确保内容和按钮在两端 */
+    z-index: 1000;
 }
 
-.card-header {
-    font-size: 1.2rem;
-    font-weight: bold;
+.sidebar.collapsed {
+    width: 70px; /* 缩小状态宽度 */
 }
 
-footer {
-    background-color: #e9ecef;
-    padding: 20px 0;
+.sidebar .nav {
+    flex-grow: 1;
+    width: 100%;
 }
 
-.table-hover tr:hover {
-    background-color: #f8f9fa;
+.sidebar .nav-item {
+    width: 100%;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: #adb5bd;
+    text-decoration: none;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #495057;
+    color: #fff;
+}
+
+.sidebar .nav-link .menu-text {
+    margin-left: 10px;
+    white-space: nowrap;
+}
+
+.sidebar.collapsed .menu-text {
+    display: none; /* 折叠时隐藏文本 */
+}
+
+.sidebar-toggle {
+    background-color: #343a40;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    padding: 0; /* 移除多余的内边距 */
     cursor: pointer;
+    text-align: center;
+    width: 40px; /* 限制按钮宽度 */
+    height: 40px; /* 限制按钮高度 */
+    border-radius: 50%; /* 圆形按钮 */
+    overflow: hidden; /* 防止溢出 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto; /* 居中按钮 */
+    transition: transform 0.3s ease, background-color 0.3s ease; /* 平滑过渡 */
+}
+
+.sidebar-toggle:hover {
+    background-color: #495057; /* 悬停时背景色变化 */
+}
+
+.sidebar-toggle i {
+    transition: transform 0.3s ease; /* 平滑图标旋转 */
+}
+
+.sidebar.collapsed .sidebar-toggle i {
+    transform: rotate(180deg); /* 折叠状态旋转图标 */
+}
+
+/* 内容区域样式 */
+#content {
+    margin-left: 100px; /* 展开时主内容区域的边距 */
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+.sidebar.collapsed + #content {
+    margin-left: 80px; /* 折叠状态下内容区域调整 */
 }

@@ -40,12 +40,18 @@ function sortTable(columnIndex) {
     updateSortIcons(columnIndex);
 }
 
-function updateSortIcons(columnIndex) {
-    const headers = document.querySelectorAll("#dashboardTable thead th i");
+function updateSortIcons(tableId, columnIndex) {
+    const headers = document.querySelectorAll(`#${tableId} thead th i`);
     headers.forEach((icon, idx) => {
-        icon.className = 'fas fa-sort'; // Reset all icons
+        // 移除 Bootstrap Icons 排序类
+        icon.classList.remove('bi-sort-up', 'bi-sort-down', 'bi-arrow-down-up');
+
         if (idx === columnIndex) {
-            icon.className = currentSortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            // 添加当前排序方向的图标
+            icon.classList.add(currentSortDirection[tableId] === 'asc' ? 'bi-sort-up' : 'bi-sort-down');
+        } else {
+            // 其他列重置为默认排序图标
+            icon.classList.add('bi-arrow-down-up');
         }
     });
 }

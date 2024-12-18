@@ -8,7 +8,30 @@ main = Blueprint('main', __name__)
 @main.route("/", methods=["GET"])
 def index():
     frps_list = TableFrps.query.all()
-    return render_template("index.html", frps_list=frps_list, active_tab="dashboard")
+
+    # 数据统计逻辑
+    datacenter_counts = {"SHAXY": 0, "SHARB": 0}  # 数据中心占比统计
+    supplier_counts = {}  # 供应商占比统计
+
+    for frps in frps_list:
+        # 数据中心统计
+        datacenter = frps.datacenter.strip().upper() if frps.datacenter else "未知"
+        if datacenter in datacenter_counts:
+            datacenter_counts[datacenter] += 1
+
+        # 遍历 FRPC 统计供应商
+        for frpc in frps.frpcs:  # 假设 TableFrps 有 frpcs 关系
+            supplier = frpc.supplier or "未知供应商"
+            actual_count = frpc.actual_count if frpc.actual_count else 0  # 确保 actual_count 存在
+            supplier_counts[supplier] = supplier_counts.get(supplier, 0) + actual_count
+
+    return render_template(
+        "index.html",
+        frps_list=frps_list,
+        datacenter_counts=datacenter_counts,
+        supplier_counts=supplier_counts,
+        active_tab="dashboard"
+    )
 
 
 @main.route("/frps", methods=["GET"])
@@ -20,7 +43,7 @@ def frps():
 
 @main.route("/frpc", methods=["GET"])
 def frpc():
-    frpc_list = TableFrpc.query.all()
+    frpc_list = TableFrpc.query.join(TableFrps).all()
     form = EditFrpcForm()  # 创建表单实例
     return render_template("frpc.html", frpc_list=frpc_list, form=form,active_tab="frpc")
 
