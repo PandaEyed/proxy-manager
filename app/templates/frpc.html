@@ -3,15 +3,15 @@
 {% block title %}FRPC{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">FRPC List</h5>
+<div class="card shadow-sm mb-4" style="border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="border-radius: 15px 15px 0 0;">
+        <h5 class="mb-0">FRPC 列表</h5>
         <a href="{{ url_for('main.add_frpc') }}" class="btn btn-sm btn-light">
             <i class="bi bi-plus-circle"></i> 新增代理
         </a>
     </div>
     <div class="card-body p-0">
-        <table class="table table-hover table-striped mb-0" id="dashboardTable">
+        <table class="table table-hover table-striped mb-0" id="dashboardTable" style="border-radius: 15px; overflow: hidden;">
             <thead class="table-light">
                 <tr>
                     <th onclick="sortTable(0)" style="cursor: pointer;">昵称 <i class="bi bi-arrow-down-up"></i></th>
@@ -22,7 +22,7 @@
                     <th onclick="sortTable(5)" style="cursor: pointer;">接入方式 <i class="bi bi-arrow-down-up"></i></th>
                     <th onclick="sortTable(6)" style="cursor: pointer;">跳板机地址 <i class="bi bi-arrow-down-up"></i></th>
                     <th onclick="sortTable(7)" style="cursor: pointer;">供应商交付内容 <i class="bi bi-arrow-down-up"></i></th>
-                    <th>Actions</th>
+                    <th>操作</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,13 +38,13 @@
                     <td>{{ frpc.supplier_delivery }}</td>
                     <td>
                         <!-- Edit Button -->
-                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editFrpcModal{{ frpc.id }}">
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editFrpcModal{{ frpc.id }}" style="border-radius: 8px;">
                             <i class="bi bi-pencil-square"></i>
                         </button>
                         <!-- Delete Button -->
                         <form method="POST" action="{{ url_for('main.delete_frpc', frpc_id=frpc.id) }}" style="display: inline;">
                             {{ form.hidden_tag() }}
-                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                            <button class="btn btn-sm btn-outline-danger" type="submit" style="border-radius: 8px;">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
@@ -53,27 +53,27 @@
 
                 <!-- Edit Modal -->
                 <div class="modal fade" id="editFrpcModal{{ frpc.id }}" tabindex="-1" aria-labelledby="editFrpcModalLabel{{ frpc.id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
                             <form method="POST" action="{{ url_for('main.edit_frpc', frpc_id=frpc.id) }}">
                                 {{ form.hidden_tag() }}
-                                <div class="modal-header bg-primary text-white">
-                                    <h5 class="modal-title" id="editFrpcModalLabel{{ frpc.id }}">Edit FRPC</h5>
+                                <div class="modal-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
+                                    <h5 class="modal-title" id="editFrpcModalLabel{{ frpc.id }}">编辑 FRPC</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="mb-3">
-                                        <label for="frpc_nickname_{{ frpc.id }}" class="form-label">Nickname</label>
+                                        <label for="frpc_nickname_{{ frpc.id }}" class="form-label">昵称</label>
                                         <input type="text" name="frpc_nickname" id="frpc_nickname_{{ frpc.id }}" class="form-control" value="{{ frpc.frpc_nickname }}">
                                     </div>
                                     <div class="mb-3">
-                                        <label for="frps_ports_{{ frpc.id }}" class="form-label">FRPS Ports</label>
+                                        <label for="frps_ports_{{ frpc.id }}" class="form-label">FRPS 端口</label>
                                         <input type="text" name="frps_ports" id="frps_ports_{{ frpc.id }}" class="form-control" value="{{ frpc.frps_ports }}">
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    <button type="submit" class="btn btn-primary">保存更改</button>
                                 </div>
                             </form>
                         </div>

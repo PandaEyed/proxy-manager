@@ -33,6 +33,14 @@ def index():
         active_tab="dashboard"
     )
 
+@main.route("/overview", methods=["GET"])
+def overview():
+    frps_list = TableFrps.query.all()
+    return render_template(
+        "overview.html",
+        frps_list=frps_list,
+        active_tab="show_all"
+    )
 
 @main.route("/frps", methods=["GET"])
 def frps():
