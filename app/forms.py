@@ -53,6 +53,7 @@ class EditFrpcForm(FlaskForm):
     )
     frpc_nickname = StringField("Nickname", validators=[Length(max=100)])
     frps_ports = StringField("FRPS Ports", validators=[Length(max=50)])
+    actual_count = IntegerField("Actual Count", validators=[Optional()])
     submit = SubmitField("Save changes")
 
 class ScaleItemForm(FlaskForm):

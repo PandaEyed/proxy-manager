@@ -131,3 +131,27 @@ footer {
     margin-left: 70px; /* 收缩状态下内容区域调整 */
     width: calc(100% - 70px); /* 动态调整内容宽度 */
 }
+
+/* frpc滑块 */
+.form-range {
+    background: linear-gradient(to right, #0d6efd, #ddd);
+    border-radius: 5px;
+    height: 8px;
+    cursor: pointer;
+}
+.form-range::-webkit-slider-thumb {
+    background-color: #0d6efd;
+    border: 2px solid white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.form-range::-moz-range-thumb {
+    background-color: #0d6efd;
+    border: 2px solid white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    cursor: pointer;
+}

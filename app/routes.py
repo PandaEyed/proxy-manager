@@ -180,7 +180,7 @@ def edit_frpc(frpc_id):
         frpc.frpc_nickname = form.frpc_nickname.data
         frpc.frps_ports = form.frps_ports.data
         frpc.frps_id =  TableFrps.query.filter(TableFrps.vms_id == request.form["frpc_vm"]).first().id if request.form.get("frpc_vm", None) else None# 处理未关联情况
-        # frpc.request.form.get("frpc_vm", None)
+        frpc.actual_count = form.actual_count.data
         db.session.commit()
         flash('FRPC updated successfully!', 'success')
         return redirect(url_for('main.frpc'))

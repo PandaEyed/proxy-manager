@@ -3,7 +3,7 @@
 {% block title %}Add FRPC{% endblock %}
 
 {% block content %}
-<div class="card mx-auto mt-5" style="max-width: 600px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+<div class="card mx-auto mt-5" style="max-width: 800px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
     <div class="card-header bg-primary text-white text-center" style="border-radius: 15px 15px 0 0;">
         <h4 class="mb-0">添加 FRPC</h4>
     </div>
@@ -11,41 +11,87 @@
         <form method="POST" action="{{ url_for('main.add_frpc', frps_id=frps_id) }}">
             {{ form.hidden_tag() }}
 
-            <!-- 关联 FRPS -->
-            <div class="mb-3">
-                {{ form.frps_id.label(class_="form-label fw-bold") }}
-                {{ form.frps_id(class_="form-control", style="border-radius: 10px;") }}
+            <!-- 关联 FRPS 和 FRPC 昵称 -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    {{ form.frps_id.label(class_="form-label fw-bold") }}
+                    {{ form.frps_id(class_="form-control", style="border-radius: 10px;") }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.frpc_nickname.label(class_="form-label fw-bold") }}
+                    {{ form.frpc_nickname(class_="form-control", style="border-radius: 10px;") }}
+                </div>
             </div>
 
-            <!-- FRPC Fields -->
-            <div class="mb-3">
-                {{ form.frpc_nickname.label(class_="form-label fw-bold") }}
-                {{ form.frpc_nickname(class_="form-control", style="border-radius: 10px;") }}
-            </div>
+            <!-- FRPC 说明 -->
             <div class="mb-3">
                 {{ form.frpc_description.label(class_="form-label fw-bold") }}
                 {{ form.frpc_description(class_="form-control", style="border-radius: 10px;", rows=3) }}
             </div>
-            <div class="mb-3">
-                {{ form.frps_ports.label(class_="form-label fw-bold") }}
-                {{ form.frps_ports(class_="form-control", style="border-radius: 10px;") }}
+
+            <!-- FRPS 占用端口 和 实际数量 -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    {{ form.frps_ports.label(class_="form-label fw-bold") }}
+                    {{ form.frps_ports(class_="form-control", style="border-radius: 10px;") }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.actual_count.label(class_="form-label fw-bold") }}
+                    {{ form.actual_count(class_="form-control", style="border-radius: 10px;") }}
+                </div>
             </div>
+
+            <!-- 供应商 -->
             <div class="mb-3">
                 {{ form.supplier.label(class_="form-label fw-bold") }}
                 {{ form.supplier(class_="form-control", style="border-radius: 10px;") }}
             </div>
+
+            <!-- 供应商交付内容 -->
             <div class="mb-3">
-                {{ form.user.label(class_="form-label fw-bold") }}
-                {{ form.user(class_="form-control", style="border-radius: 10px;") }}
-            </div>
-            <div class="mb-3">
-                {{ form.health_check.label(class_="form-label fw-bold") }}
-                {{ form.health_check(class_="form-control", style="border-radius: 10px;") }}
+                {{ form.supplier_delivery.label(class_="form-label fw-bold") }}
+                {{ form.supplier_delivery(class_="form-control", style="border-radius: 10px;", rows=3) }}
             </div>
 
-            <!-- Submit Button -->
+            <!-- 接入方式 -->
+            <div class="mb-3">
+                {{ form.access_method.label(class_="form-label fw-bold") }}
+                {{ form.access_method(class_="form-control", style="border-radius: 10px;") }}
+            </div>
+
+            <!-- 使用方 和 健康检测方式 -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    {{ form.user.label(class_="form-label fw-bold") }}
+                    {{ form.user(class_="form-control", style="border-radius: 10px;") }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.health_check.label(class_="form-label fw-bold") }}
+                    {{ form.health_check(class_="form-control", style="border-radius: 10px;") }}
+                </div>
+            </div>
+
+            <!-- Gost 地址 -->
+            <div class="mb-3">
+                {{ form.gost_address.label(class_="form-label fw-bold") }}
+                {{ form.gost_address(class_="form-control", style="border-radius: 10px;") }}
+            </div>
+
+            <!-- 备注 1 和 备注 2 -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    {{ form.remark_1.label(class_="form-label fw-bold") }}
+                    {{ form.remark_1(class_="form-control", style="border-radius: 10px;", rows=3) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.remark_2.label(class_="form-label fw-bold") }}
+                    {{ form.remark_2(class_="form-control", style="border-radius: 10px;", rows=3) }}
+                </div>
+            </div>
+
+            <!-- 提交按钮 -->
             <div class="text-center">
-                <button type="submit" class="btn btn-primary" style="border-radius: 10px; padding: 10px 20px; font-size: 1.1rem;">添加 FRPC</button>
+                <button type="submit" class="btn btn-primary" style="border-radius: 10px; padding: 10px 20px; font-size: 1.1rem;">提交</button>
             </div>
         </form>
     </div>

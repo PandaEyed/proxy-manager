@@ -3,15 +3,15 @@
 {% block title %}FRPC{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+<div class="card" style="border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="border-radius: 15px 15px 0 0;">
         <h5 class="mb-0">FRPC List</h5>
         <a href="{{ url_for('main.add_frpc') }}" class="btn btn-sm btn-light">
             <i class="bi bi-plus-circle"></i> 新增代理
         </a>
     </div>
     <div class="card-body p-0">
-        <table class="table table-hover table-striped mb-0" id="dashboardTable">
+        <table class="table table-hover table-striped mb-0" id="dashboardTable" style="border-radius: 15px; overflow: hidden;">
             <thead class="table-light">
                 <tr>
                     <th onclick="sortTable(0)" style="cursor: pointer;">昵称 <i class="bi bi-arrow-down-up"></i></th>
@@ -27,7 +27,7 @@
             </thead>
             <tbody>
                 {% for frpc in frpc_list %}
-                <tr>
+                <tr style="border-bottom: 1px solid #f1f1f1;">
                     <td>{{ frpc.frpc_nickname }}</td>
                     <td>{{ frpc.frpc_description }}</td>
                     <td>{{ frpc.frps.internal_ip if frpc.frps else 'N/A' }}:{{ frpc.frps_ports }}</td>
@@ -37,28 +37,25 @@
                     <td>{{ frpc.gost_address }}</td>
                     <td>{{ frpc.supplier_delivery }}</td>
                     <td>
-                        <!-- Edit Button -->
-                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editFrpcModal{{ frpc.id }}">
+                        <button class="btn btn-sm btn-outline-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#editFrpcModal{{ frpc.id }}">
                             <i class="bi bi-pencil-square"></i>
                         </button>
-                        <!-- Delete Button -->
                         <form method="POST" action="{{ url_for('main.delete_frpc', frpc_id=frpc.id) }}" style="display: inline;">
                             {{ form.hidden_tag() }}
-                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                            <button class="btn btn-sm btn-outline-danger" style="border-radius: 8px;" type="submit">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
                     </td>
                 </tr>
 
-                <!-- Ensure this form is valid -->
                 <div class="modal fade" id="editFrpcModal{{ frpc.id }}" tabindex="-1" aria-labelledby="editFrpcModalLabel{{ frpc.id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
                             <form method="POST" action="{{ url_for('main.edit_frpc', frpc_id=frpc.id) }}">
                                 {{ form.hidden_tag() }}
-                                <div class="modal-header bg-primary text-white">
-                                    <h5 class="modal-title" id="editFrpcModalLabel{{ frpc.id }}">Edit FRPC</h5>
+                                <div class="modal-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
+                                    <h5 class="modal-title" id="editFrpcModalLabel{{ frpc.id }}">编辑 FRPC 信息</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
@@ -66,27 +63,37 @@
                                         <label for="frpc_nickname_{{ frpc.id }}" class="form-label">代理昵称</label>
                                         <input type="text" name="frpc_nickname" id="frpc_nickname_{{ frpc.id }}" class="form-control" value="{{ frpc.frpc_nickname }}">
                                     </div>
-                                     <!-- 下拉框 -->
                                     <label>FRPS 位置</label>
                                     <select class="form-select" name="frpc_vm">
                                         {% for frpc_cur in frps_list %}
-                                            {% if frpc.frps.id == frpc_cur.id %}
-                                                <option selected>
-                                            {% else %}
-                                                <option>
-                                            {% endif %}
-                                            {{ frpc_cur.vms_id }}
-                                        </option>
+                                            <option {% if frpc.frps.id == frpc_cur.id %} selected {% endif %}>
+                                                {{ frpc_cur.vms_id }}
+                                            </option>
                                         {% endfor %}
                                     </select>
                                     <div class="mb-3">
                                         <label for="frps_ports_{{ frpc.id }}" class="form-label">FRPS 端口占用</label>
                                         <input type="text" name="frps_ports" id="frps_ports_{{ frpc.id }}" class="form-control" value="{{ frpc.frps_ports }}">
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="actual_count_{{ frpc.id }}" class="form-label">实际数量</label>
+                                        <div class="d-flex align-items-center">
+                                            <!-- 滑块 -->
+                                        <input type="range"
+                                               name="actual_count"
+                                               id="actual_count_{{ frpc.id }}"
+                                               class="form-range"
+                                               min="0"
+                                               max="1000"
+                                               value="{{ frpc.actual_count }}"
+                                               oninput="updateActualCountDisplay('actual_count_{{ frpc.id }}', 'actual_count_display_{{ frpc.id }}')">                                            <!-- 当前值显示 -->
+                                            <span class="ms-2" id="actual_count_display_{{ frpc.id }}">{{ frpc.actual_count }}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="modal-footer">
+                                <div class="modal-footer" style="border-top: none;">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                    <button type="submit" class="btn btn-primary">确认更改</button>
+                                    <button type="submit" class="btn btn-primary">保存更改</button>
                                 </div>
                             </form>
                         </div>
@@ -98,4 +105,17 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // 通用函数，更新滑块值显示
+    function updateActualCountDisplay(sliderId, displayId) {
+        const slider = document.getElementById(sliderId);
+        const display = document.getElementById(displayId);
+        if (slider && display) {
+            display.innerText = slider.value;
+        }
+    }
+</script>
 {% endblock %}
