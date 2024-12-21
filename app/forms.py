@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Optional, IPAddress, Length
+from wtforms import StringField, IntegerField, SubmitField, TextAreaField, FieldList, FormField
+from wtforms.validators import DataRequired, Optional, IPAddress, Length, NumberRange
 from wtforms import SelectField
 
 
@@ -45,6 +45,24 @@ class EditFrpsForm(FlaskForm):
 
 
 class EditFrpcForm(FlaskForm):
+    frps_id = SelectField(
+        "关联 FRPS",
+        coerce=int,
+        validators=[Optional()],
+        choices=[]  # 初始为空，由视图动态设置
+    )
     frpc_nickname = StringField("Nickname", validators=[Length(max=100)])
     frps_ports = StringField("FRPS Ports", validators=[Length(max=50)])
     submit = SubmitField("Save changes")
+
+class ScaleItemForm(FlaskForm):
+    nickname = StringField('FRPC Nickname', validators=[DataRequired(), Length(max=100)])
+    progress = IntegerField('扩展量', validators=[DataRequired(), NumberRange(min=1, max=750)])
+
+
+class ScaleRequestForm(FlaskForm):
+    subject = StringField('主题', validators=[DataRequired(), Length(max=100)])
+    description = TextAreaField('描述需求', validators=[DataRequired()])
+    frps_allocation = SelectField('选择 FRPS', choices=[], coerce=int)
+    items = FieldList(FormField(ScaleItemForm), min_entries=1, max_entries=10)
+    submit = SubmitField('提交扩容单')

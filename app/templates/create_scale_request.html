@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}新建扩容单{% endblock %}
+
+{% block content %}
+<div class="card" style="border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">新建扩容单</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('main.create_scale_request') }}">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.subject.label(class_="form-label") }}
+                {{ form.subject(class_="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.description.label(class_="form-label") }}
+                {{ form.description(class_="form-control", rows=3) }}
+            </div>
+            <div class="mb-3">
+                {{ form.frps_allocation.label(class_="form-label") }}
+                {{ form.frps_allocation(class_="form-select") }}
+            </div>
+            <div id="scaleItems">
+                {% for item in form.items %}
+                <div class="mb-3">
+                    {{ item.nickname.label(class_="form-label") }}
+                    {{ item.nickname(class_="form-control") }}
+                    {{ item.progress.label(class_="form-label") }}
+                    {{ item.progress(class_="form-range", min=1, max=750, step=1) }}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('main.scale_requests') }}" class="btn btn-secondary">返回</a>
+                {{ form.submit(class_="btn btn-success") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
