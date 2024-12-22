@@ -21,9 +21,10 @@ def index():
         for frpc in frps.frpcs:
             supplier = frpc.supplier or "未知供应商"
             supplier_counts[supplier] = supplier_counts.get(supplier, 0) + (frpc.actual_count or 0)
-
+    # 去掉未使用的 frps
+    filtered_count = {key: value for key, value in datacenter_counts.items() if key != '无'}
     return render_template(
-        "index.html", frps_list=frps_list, datacenter_counts=datacenter_counts,
+        "index.html", frps_list=frps_list, datacenter_counts=filtered_count,
         supplier_counts=supplier_counts
     )
 

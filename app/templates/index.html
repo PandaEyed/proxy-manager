@@ -10,11 +10,11 @@
         </div>
         <div class="card-body">
             <div class="row text-center mb-4">
-                <!-- 总机器数 -->
+                <!-- 总机器数（去掉 0 号） -->
                 <div class="col-md-6 mb-3">
                     <div class="p-3 border rounded bg-light">
                         <h6 class="text-muted">总机器数</h6>
-                        <p class="h4 fw-bold text-success">{{ frps_list|length }}</p>
+                        <p class="h4 fw-bold text-success">{{ frps_list|length - 1 }}</p>
                     </div>
                 </div>
                 <!-- 代理总量 -->

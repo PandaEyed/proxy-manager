@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
             labels: Object.keys(datacenterCounts),
             datasets: [{
                 data: Object.values(datacenterCounts),
-                backgroundColor: ["#ADFF2F", "#1E90FF"]
+                backgroundColor: ["#e8d870", "#6ba3e0"]
             }]
         },
         options: {
@@ -34,9 +34,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const sortedData = sortedSuppliers.map(item => item[1]);   // 对应数量
 
     // 为每个供应商分配不同的颜色（随机生成颜色）
-    const backgroundColors = sortedLabels.map((_, i) =>
-        `hsl(${(i * 45) % 360}, 70%, 50%)` // HSL 色值生成不同色块
-    );
+    // 为每个供应商分配相同的颜色
+    const backgroundColors = sortedLabels.map(() => "#6ba3e0"); // 固定为蓝色
 
     // 图表 2: 供应商占比
     const ctxSupplier = document.getElementById("supplierChart").getContext("2d");
