@@ -44,32 +44,3 @@ class TableFrpc(db.Model):
     def __repr__(self):
         return f"<TableFrpc(id={self.id}, frpc_nickname={self.frpc_nickname})>"
 
-
-class ScaleRequest(db.Model):
-    __tablename__ = 'scale_request'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    subject = db.Column(db.String(100), nullable=False, comment="主题")
-    description = db.Column(db.Text, nullable=False, comment="描述需求")
-    request_type = db.Column(db.String(50), nullable=False, comment="单据类型")
-    status = db.Column(db.String(20), default="Pending", nullable=False, comment="状态")
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, comment="创建时间")
-
-    # Relationship: One ScaleRequest to Many ScaleItems
-    items = db.relationship('ScaleItem', backref='scale_request', lazy=True)
-
-    def __repr__(self):
-        return f"<ScaleRequest(id={self.id}, subject={self.subject}, status={self.status})>"
-
-
-class ScaleItem(db.Model):
-    __tablename__ = 'scale_item'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nickname = db.Column(db.String(100), nullable=False, comment="FRPC 昵称")
-    progress = db.Column(db.Integer, nullable=False, comment="扩展量")
-    frps_id = db.Column(db.Integer, db.ForeignKey('table_frps.id'), nullable=False, comment="关联 FRPS")
-    scale_request_id = db.Column(db.Integer, db.ForeignKey('scale_request.id'), nullable=False, comment="关联扩容单")
-
-    def __repr__(self):
-        return f"<ScaleItem(id={self.id}, nickname={self.nickname}, progress={self.progress})>"

@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField, TextAreaField, FieldList, FormField
+from wtforms import StringField, IntegerField, SubmitField, TextAreaField, FieldList, FormField,SelectField
 from wtforms.validators import DataRequired, Optional, IPAddress, Length, NumberRange
-from wtforms import SelectField
 
 
 class AddFrpsForm(FlaskForm):
@@ -67,15 +66,3 @@ class EditFrpcForm(FlaskForm):
     remark_1 = TextAreaField("备注 1", validators=[Optional()])
     remark_2 = TextAreaField("备注 2", validators=[Optional()])
     submit = SubmitField("保存更改")
-
-class ScaleItemForm(FlaskForm):
-    nickname = StringField('FRPC Nickname', validators=[DataRequired(), Length(max=100)])
-    progress = IntegerField('扩展量', validators=[DataRequired(), NumberRange(min=1, max=750)])
-
-
-class ScaleRequestForm(FlaskForm):
-    subject = StringField('主题', validators=[DataRequired(), Length(max=100)])
-    description = TextAreaField('描述需求', validators=[DataRequired()])
-    frps_allocation = SelectField('选择 FRPS', choices=[], coerce=int)
-    items = FieldList(FormField(ScaleItemForm), min_entries=1, max_entries=10)
-    submit = SubmitField('提交扩容单')

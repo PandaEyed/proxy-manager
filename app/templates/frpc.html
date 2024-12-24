@@ -60,7 +60,7 @@
                         <button class="btn btn-sm btn-outline-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#editFrpcModal{{ frpc.id }}">
                             <i class="bi bi-pencil-square"></i>
                         </button>
-                        <form method="POST" action="{{ url_for('main.delete_frpc', frpc_id=frpc.id) }}" style="display: inline;" onsubmit="return confirm('确定要删除���条记录吗？');">
+                        <form method="POST" action="{{ url_for('main.delete_frpc', frpc_id=frpc.id) }}" style="display: inline;" onsubmit="return confirm('确定要删除条记录吗？');">
                             {{ form.hidden_tag() }}
                             <button class="btn btn-sm btn-outline-danger" style="border-radius: 8px;" type="submit">
                                 <i class="bi bi-trash"></i>
@@ -74,7 +74,7 @@
 
                 <!-- 编辑模态框 -->
                 <div class="modal fade" id="editFrpcModal{{ frpc.id }}" tabindex="-1" aria-labelledby="editFrpcModalLabel{{ frpc.id }}" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
                         <div class="modal-content" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
                             <form method="POST" action="{{ url_for('main.edit_frpc', frpc_id=frpc.id) }}">
                                 {{ form.hidden_tag() }}
@@ -83,77 +83,118 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label class="form-label">代理昵称</label>
-                                        <input type="text" name="frpc_nickname" class="form-control" value="{{ frpc.frpc_nickname }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">描述</label>
-                                        <textarea name="frpc_description" class="form-control" rows="3">{{ frpc.frpc_description }}</textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">FRPS 位置</label>
-                                        <select name="frps_id" class="frps-select" style="width: 100%;">
-                                            <option value="0">未分配</option>
-                                            {% for frps in frps_list %}
-                                                <option value="{{ frps.id }}" 
-                                                        data-datacenter="{{ frps.datacenter }}"
-                                                        data-ip="{{ frps.internal_ip }}"
-                                                        {% if frpc.frps and frpc.frps.id == frps.id %}selected{% endif %}>
-                                                    {{ frps.vms_id }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">端口占用</label>
-                                        <input type="text" name="frps_ports" class="form-control" value="{{ frpc.frps_ports }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">实际数量</label>
-                                        <div class="d-flex align-items-center">
-                                            <input type="range"
-                                                   name="actual_count"
-                                                   class="form-range"
-                                                   min="0"
-                                                   max="1000"
-                                                   value="{{ frpc.actual_count|default(0, true) }}"
-                                                   oninput="updateActualCountDisplay(this.id, 'actual_count_display_{{ frpc.id }}')"
-                                                   id="actual_count_{{ frpc.id }}">
-                                            <span class="ms-2" id="actual_count_display_{{ frpc.id }}">{{ frpc.actual_count|default(0, true) }}</span>
+                                    <!-- 基本信息 -->
+                                    <div class="card mb-4" style="border-radius: 10px;">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0"><i class="bi bi-info-circle"></i> 基本信息</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">FRPS 位置</label>
+                                                    <select name="frps_id" class="frps-select" style="width: 100%;">
+                                                        <option value="0">未分配</option>
+                                                        {% for frps in frps_list %}
+                                                            <option value="{{ frps.id }}" 
+                                                                    data-datacenter="{{ frps.datacenter }}"
+                                                                    data-ip="{{ frps.internal_ip }}"
+                                                                    {% if frpc.frps and frpc.frps.id == frps.id %}selected{% endif %}>
+                                                                {{ frps.vms_id }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">代理昵称</label>
+                                                    <input type="text" name="frpc_nickname" class="form-control" value="{{ frpc.frpc_nickname }}">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">描述</label>
+                                                <textarea name="frpc_description" class="form-control" rows="3">{{ frpc.frpc_description }}</textarea>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">端口占用</label>
+                                                    <input type="text" name="frps_ports" class="form-control" value="{{ frpc.frps_ports }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">实际数量</label>
+                                                    <div class="d-flex align-items-center">
+                                                        <input type="range" name="actual_count_slider" class="form-range"
+                                                               min="0" max="23" value="{{ rangeValues.index(frpc.actual_count) if frpc.actual_count in rangeValues else 0 }}"
+                                                               oninput="updateEditActualCount(this.value, {{ frpc.id }})"
+                                                               id="actual_count_slider_{{ frpc.id }}">
+                                                        <input type="number" name="actual_count" class="form-control ms-2" style="width: 80px;"
+                                                               value="{{ frpc.actual_count|default(0, true) }}"
+                                                               id="actual_count_input_{{ frpc.id }}">
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">供应商</label>
-                                        <input type="text" name="supplier" class="form-control" value="{{ frpc.supplier }}">
+
+                                    <!-- 供应商信息 -->
+                                    <div class="card mb-4" style="border-radius: 10px;">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0"><i class="bi bi-building"></i> 供应商信息</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">供应商</label>
+                                                <input type="text" name="supplier" class="form-control" value="{{ frpc.supplier }}">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">供应商交付内容</label>
+                                                <textarea name="supplier_delivery" class="form-control" rows="3">{{ frpc.supplier_delivery }}</textarea>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">供应商交付内容</label>
-                                        <textarea name="supplier_delivery" class="form-control" rows="3">{{ frpc.supplier_delivery }}</textarea>
+
+                                    <!-- 技术配置 -->
+                                    <div class="card mb-4" style="border-radius: 10px;">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0"><i class="bi bi-gear"></i> 技术配置</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">接入方式</label>
+                                                    <input type="text" name="access_method" class="form-control" value="{{ frpc.access_method }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">健康检测方式</label>
+                                                    <input type="text" name="health_check" class="form-control" value="{{ frpc.health_check }}">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">GOST 地址</label>
+                                                <input type="text" name="gost_address" class="form-control" value="{{ frpc.gost_address }}">
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">接入方式</label>
-                                        <input type="text" name="access_method" class="form-control" value="{{ frpc.access_method }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">使用方</label>
-                                        <input type="text" name="user" class="form-control" value="{{ frpc.user }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">GOST 地址</label>
-                                        <input type="text" name="gost_address" class="form-control" value="{{ frpc.gost_address }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">健康检测方式</label>
-                                        <input type="text" name="health_check" class="form-control" value="{{ frpc.health_check }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">备注 1</label>
-                                        <textarea name="remark_1" class="form-control" rows="2">{{ frpc.remark_1 }}</textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">备注 2</label>
-                                        <textarea name="remark_2" class="form-control" rows="2">{{ frpc.remark_2 }}</textarea>
+
+                                    <!-- 其他信息 -->
+                                    <div class="card mb-4" style="border-radius: 10px;">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0"><i class="bi bi-card-text"></i> 其他信息</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">使用方</label>
+                                                <input type="text" name="user" class="form-control" value="{{ frpc.user }}">
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">备注 1</label>
+                                                    <textarea name="remark_1" class="form-control" rows="3">{{ frpc.remark_1 }}</textarea>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">备注 2</label>
+                                                    <textarea name="remark_2" class="form-control" rows="3">{{ frpc.remark_2 }}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer" style="border-top: none;">
@@ -262,13 +303,15 @@
                                     {{ form.actual_count.label(class_="form-label") }}
                                     <div class="d-flex align-items-center">
                                         <input type="range" 
-                                               id="actual_count_slider" 
+                                               id="add_actual_count_slider" 
                                                class="form-range" 
                                                min="0" 
                                                max="23" 
                                                value="0"
-                                               oninput="updateActualCountDisplay(this.value)">
-                                        {{ form.actual_count(class_="form-control ms-2", style="width: 80px; border-radius: 8px;", id="actual_count_input") }}
+                                               oninput="updateAddActualCount(this.value)">
+                                        {{ form.actual_count(class_="form-control ms-2", 
+                                                   style="width: 80px; border-radius: 8px;", 
+                                                   id="add_actual_count_input") }}
                                     </div>
                                 </div>
                             </div>
@@ -359,7 +402,50 @@
 {% block extra_scripts %}
 {{ super() }}
 <script>
+// 定义数值范围数组
+const rangeValues = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 150, 200, 250, 300, 400, 500, 750, 1000];
+
+// 编辑模态框中的滑块更新函数
+function updateEditActualCount(index, frpcId) {
+    const value = rangeValues[index];
+    document.getElementById(`actual_count_input_${frpcId}`).value = value;
+}
+
+// 添加新代理模态框中的滑块更新函数
+function updateAddActualCount(index) {
+    const value = rangeValues[index];
+    document.getElementById('add_actual_count_input').value = value;
+}
+
 $(document).ready(function() {
+    // 初始化编辑模态框中的所有滑块输入框
+    document.querySelectorAll('input[name="actual_count"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const frpcId = this.id.split('_').pop();
+            const value = parseInt(this.value);
+            const closest = rangeValues.reduce((prev, curr) => 
+                Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+            );
+            const index = rangeValues.indexOf(closest);
+            document.getElementById(`actual_count_slider_${frpcId}`).value = index;
+            this.value = closest;
+        });
+    });
+
+    // 初始化添加新代理模态框中的滑块输入框
+    const addInput = document.getElementById('add_actual_count_input');
+    if (addInput) {
+        addInput.addEventListener('change', function() {
+            const value = parseInt(this.value);
+            const closest = rangeValues.reduce((prev, curr) => 
+                Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+            );
+            const index = rangeValues.indexOf(closest);
+            document.getElementById('add_actual_count_slider').value = index;
+            this.value = closest;
+        });
+    }
+    
     // 初始化所有编辑模态框中的 Select2
     $('.frps-select').each(function() {
         $(this).select2({
@@ -383,33 +469,6 @@ $(document).ready(function() {
         templateResult: formatFrps,
         templateSelection: formatFrps
     });
-
-    // 实际数量滑块初始化
-    const rangeValues = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 150, 200, 250, 300, 400, 500, 750, 1000];
-    
-    function updateActualCountDisplay(index) {
-        const value = rangeValues[index];
-        document.getElementById('actual_count_input').value = value;
-    }
-
-    // 初始化滑块
-    const slider = document.getElementById('actual_count_slider');
-    const input = document.getElementById('actual_count_input');
-    if (slider && input) {
-        const initialValue = input.value || 0;
-        const initialIndex = rangeValues.indexOf(parseInt(initialValue));
-        slider.value = initialIndex >= 0 ? initialIndex : 0;
-
-        input.addEventListener('change', function() {
-            const value = parseInt(this.value);
-            const closest = rangeValues.reduce((prev, curr) => 
-                Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
-            );
-            const index = rangeValues.indexOf(closest);
-            slider.value = index;
-            this.value = closest;
-        });
-    }
 });
 
 function formatFrps(frps) {

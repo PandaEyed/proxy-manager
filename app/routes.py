@@ -1,9 +1,8 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app import db
-from app.models import TableFrps, TableFrpc,ScaleRequest,  ScaleItem
-from app.forms import AddFrpsForm, AddFrpcForm, EditFrpsForm, EditFrpcForm,ScaleItemForm, ScaleRequestForm
-
+from app.models import TableFrps, TableFrpc
+from app.forms import AddFrpsForm, AddFrpcForm, EditFrpsForm, EditFrpcForm
 main = Blueprint('main', __name__)
 def flash_and_redirect(message, category, endpoint):
     """抽象 flash 消息和重定向逻辑"""
@@ -31,9 +30,11 @@ def index():
 @main.route("/overview", methods=["GET"])
 def overview():
     frps_list = TableFrps.query.all()
+    form = AddFrpcForm()
     return render_template(
         "overview.html",
-        frps_list=frps_list
+        frps_list=frps_list,
+        form=form
     )
 
 # FRPS 列表页面
@@ -151,7 +152,7 @@ def add_frpc():
         )
         db.session.add(frpc)
         db.session.commit()
-        flash("代理添加成功！", "success")
+        flash("代理���加成功！", "success")
         return redirect(url_for("main.frpc"))
     
     return render_template(
@@ -230,57 +231,3 @@ def delete_frpc(frpc_id):
     db.session.commit()
     flash("FRPC deleted successfully!", "success")
     return redirect(url_for("main.frpc"))
-
-
-""" 扩容单 """
-
-@main.route('/scale_requests', methods=['GET'])
-def scale_requests():
-    scale_requests = ScaleRequest.query.order_by(ScaleRequest.created_at.desc()).all()
-    return render_template('scale_requests.html', scale_requests=scale_requests)
-
-@main.route('/scale_request/<int:request_id>')
-def scale_request_detail(request_id):
-    scale_request = ScaleRequest.query.get_or_404(request_id)
-    return render_template('scale_request_detail.html', scale_request=scale_request)
-
-
-@main.route('/create_scale_request', methods=['GET', 'POST'])
-def create_scale_request():
-    form = ScaleRequestForm()
-    form.frps_allocation.choices = [(frps.id, frps.vms_id) for frps in TableFrps.query.all()]
-    if request.method == "GET":
-        return render_template('create_scale_request.html', form=form)
-
-    # if form.validate_on_submit():
-    scale_request = ScaleRequest(
-        subject=form.subject.data,
-        description=form.description.data,
-        request_type="扩容单",
-        status="Pending",
-        created_at=datetime.utcnow(),
-    )
-    db.session.add(scale_request)
-    db.session.commit()
-
-    for item_data in form.items.data:
-        scale_item = ScaleItem(
-            nickname=item_data['nickname'],
-            progress=item_data['progress'],
-            frps_id=form.frps_allocation.data,
-            scale_request_id=scale_request.id,
-        )
-        db.session.add(scale_item)
-    db.session.commit()
-
-    flash('扩容单已成功创建！', 'success')
-    return redirect(url_for('main.scale_requests'))
-
-
-@main.route('/update_scale_request_status/<int:request_id>', methods=['POST'])
-def update_scale_request_status(request_id):
-    scale_request = ScaleRequest.query.get_or_404(request_id)
-    scale_request.status = "Completed"
-    db.session.commit()
-    flash('工单已标记为完成！', 'success')
-    return redirect(url_for('main.scale_request_detail', request_id=request_id))

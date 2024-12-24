@@ -105,9 +105,24 @@
                                         </div>
                                     </div>
                                 {% endfor %}
+                                
+                                <button type="button" class="btn btn-sm btn-primary"
+                                        style="border-radius: 8px;"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#addFrpcModal{{ frps.id }}">
+                                    <i class="bi bi-plus-lg"></i> 添加
+                                </button>
                             </div>
                         {% else %}
-                            <span class="text-muted">（ 空闲中 ）</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">（ 空闲中 ）</span>
+                                <button type="button" class="btn btn-sm btn-primary"
+                                        style="border-radius: 8px;"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#addFrpcModal{{ frps.id }}">
+                                    <i class="bi bi-plus-lg"></i> 添加
+                                </button>
+                            </div>
                         {% endif %}
                     </td>
                 </tr>
@@ -116,4 +131,60 @@
         </table>
     </div>
 </div>
+
+{% for frps in frps_list %}
+<div class="modal fade" id="addFrpcModal{{ frps.id }}" tabindex="-1" aria-labelledby="addFrpcModalLabel{{ frps.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+            <div class="modal-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title" id="addFrpcModalLabel{{ frps.id }}">添加代理线路 - {{ frps.vms_id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('main.add_frpc') }}" id="addFrpcForm{{ frps.id }}">
+                    {{ form.hidden_tag() }}
+                    <input type="hidden" name="frps_id" value="{{ frps.id }}">
+                    
+                    <!-- 基本信息 -->
+                    <div class="card mb-4" style="border-radius: 10px;">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="bi bi-info-circle"></i> 基本信息</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">FRPS 服务器</label>
+                                    <input type="text" class="form-control" value="{{ frps.vms_id }} ({{ frps.datacenter }} - {{ frps.internal_ip }})" disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.frpc_nickname.label(class_="form-label") }}
+                                    {{ form.frpc_nickname(class_="form-control", style="border-radius: 8px;", placeholder="输入代理昵称") }}
+                                </div>
+                            </div>
+                            
+                            <!-- 其余表单字段保持与 frpc.html 中相同 -->
+                            <div class="mb-3">
+                                {{ form.frpc_description.label(class_="form-label") }}
+                                {{ form.frpc_description(class_="form-control", style="border-radius: 8px;", rows=3, placeholder="输入代理说明") }}
+                            </div>
+                            
+                            <!-- ... 其他字段 ... -->
+                            
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary px-4" style="border-radius: 8px;">
+                            <i class="bi bi-check-lg"></i> 提交
+                        </button>
+                        <button type="button" class="btn btn-secondary px-4 ms-2" data-bs-dismiss="modal" style="border-radius: 8px;">
+                            <i class="bi bi-x-lg"></i> 取消
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}
