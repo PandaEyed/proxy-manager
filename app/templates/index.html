@@ -3,19 +3,19 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
+<div class="dashboard">
     <!-- 统计卡片 -->
-    <div class="row mb-4">
+    <div class="row g-4 mb-4">
         <div class="col-12">
-            <div class="card" style="border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="border-radius: 15px 15px 0 0;">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">统计信息</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
+                    <div class="row g-3">
                         <!-- 总机器数卡片 -->
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100" style="border-radius: 12px; border: 1px solid rgba(0,0,0,.125);">
+                        <div class="col-md-6">
+                            <div class="card h-100">
                                 <div class="card-body text-center">
                                     <div class="d-flex align-items-center justify-content-center mb-2">
                                         <i class="bi bi-server text-primary" style="font-size: 2rem;"></i>
@@ -27,8 +27,8 @@
                         </div>
                         
                         <!-- 代理总量卡片 -->
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100" style="border-radius: 12px; border: 1px solid rgba(0,0,0,.125);">
+                        <div class="col-md-6">
+                            <div class="card h-100">
                                 <div class="card-body text-center">
                                     <div class="d-flex align-items-center justify-content-center mb-2">
                                         <i class="bi bi-hdd-network text-success" style="font-size: 2rem;"></i>
@@ -47,11 +47,11 @@
     </div>
 
     <!-- 图表区域 -->
-    <div class="row">
+    <div class="row g-4">
         <!-- 数据中心占比图表 -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100" style="border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                <div class="card-header bg-light" style="border-radius: 15px 15px 0 0;">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
                     <h6 class="mb-0 text-center">SHAXY 和 SHARB 占比</h6>
                 </div>
                 <div class="card-body">
@@ -61,9 +61,9 @@
         </div>
 
         <!-- 供应商占比图表 -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100" style="border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                <div class="card-header bg-light" style="border-radius: 15px 15px 0 0;">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
                     <h6 class="mb-0 text-center">供应商占比</h6>
                 </div>
                 <div class="card-body">

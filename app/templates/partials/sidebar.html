@@ -1,32 +1,44 @@
-<nav id="sidebar" class="sidebar expanded">
-    <button id="sidebarToggle" class="sidebar-toggle">
-        <i class="bi bi-chevron-left"></i>
-    </button>
-    <ul class="nav flex-column">
+<nav id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="logo-text">FRP总看板</h3>
+            <button id="sidebarCollapse" class="btn btn-link p-0" style="color: var(--sidebar-text);">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+    </div>
+    <ul class="nav-menu">
         <li class="nav-item">
-            <a href="/" class="nav-link">
-                <i class="bi bi-house-door"></i>
+            <a href="{{ url_for('main.index') }}" 
+               class="nav-link {{ 'active' if request.endpoint == 'main.index' }}" 
+               title="主页">
+                <i class="bi bi-house"></i>
                 <span class="menu-text">主页</span>
             </a>
         </li>
         <li class="nav-item">
-            <a href="/overview" class="nav-link">
+            <a href="{{ url_for('main.overview') }}" 
+               class="nav-link {{ 'active' if request.endpoint == 'main.overview' }}" 
+               title="总看板">
                 <i class="bi bi-card-text"></i>
                 <span class="menu-text">总看板</span>
             </a>
         </li>
         <li class="nav-item">
-            <a href="/frps" class="nav-link">
+            <a href="{{ url_for('main.frps') }}" 
+               class="nav-link {{ 'active' if request.endpoint == 'main.frps' }}" 
+               title="FRPS">
                 <i class="bi bi-server"></i>
                 <span class="menu-text">FRPS</span>
             </a>
         </li>
         <li class="nav-item">
-            <a href="/frpc" class="nav-link">
+            <a href="{{ url_for('main.frpc') }}" 
+               class="nav-link {{ 'active' if request.endpoint == 'main.frpc' }}" 
+               title="FRPC">
                 <i class="bi bi-hdd-network"></i>
                 <span class="menu-text">FRPC</span>
             </a>
         </li>
-
     </ul>
 </nav>
