@@ -15,8 +15,9 @@
                     <th onclick="sortTable(1)" style="cursor: pointer;">内网 IP <i class="bi bi-arrow-down-up"></i></th>
                     <th onclick="sortTable(2)" style="cursor: pointer;">公网 IP <i class="bi bi-arrow-down-up"></i></th>
                     <th onclick="sortTable(3)" style="cursor: pointer;">机房 <i class="bi bi-arrow-down-up"></i></th>
-                    <th onclick="sortTable(4)" style="cursor: pointer;">容量 <i class="bi bi-arrow-down-up"></i></th>
-                    <th onclick="sortTable(5)" style="cursor: pointer;">Clients <i class="bi bi-arrow-down-up"></i></th>
+                    <th onclick="sortTable(4)" style="cursor: pointer;">ISP 线路 <i class="bi bi-arrow-down-up"></i></th>
+                    <th onclick="sortTable(5)" style="cursor: pointer;">容量 <i class="bi bi-arrow-down-up"></i></th>
+                    <th onclick="sortTable(6)" style="cursor: pointer;">Clients <i class="bi bi-arrow-down-up"></i></th>
                 </tr>
             </thead>
             <tbody>
@@ -35,6 +36,16 @@
                         <span style="display: inline-block; padding: 5px 10px; border-radius: 10px; background-color: {{ datacenter_colors.get(frps.datacenter.lower(), '#e0e0e0') }}; font-size: 0.9rem; color: #000;">
                             {{ frps.datacenter }}
                         </span>
+                    </td>
+                    <td>
+                        {% if frps.isp_line %}
+                            {{ frps.isp_line }}
+                            {% if frps.specific_line %}
+                            <small class="text-muted">({{ frps.specific_line }})</small>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
                     </td>
                     <td>
                         <div class="progress" style="height: 25px; width: 200px; background-color: #f8f9fa; border-radius: 12px; overflow: hidden;">
@@ -67,57 +78,23 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <ul class="list-unstyled" style="line-height: 1.8;">
-                                                        {% if frpc.frpc_nickname %}
-                                                        <li><strong>昵称 :</strong> {{ frpc.frpc_nickname }}</li>
-                                                        {% endif %}
-
-                                                        {% if frpc.frpc_description %}
-                                                        <li><strong>描述 :</strong> {{ frpc.frpc_description }}</li>
-                                                        {% endif %}
-
-                                                        {% if frpc.frps_ports %}
-                                                        <li><strong>端口占用 :</strong> {{ frpc.frps_ports }}</li>
-                                                        {% endif %}
-
-                                                        {% if frpc.supplier %}
-                                                        <li><strong>供应商 :</strong> {{ frpc.supplier }}</li>
-                                                        {% endif %}
-
-                                                        {% if frpc.supplier_delivery %}
-                                                        <li><strong>供应商交付内容 :</strong> {{ frpc.supplier_delivery }}</li>
-                                                        {% endif %}
-
-                                                        {% if frpc.access_method %}
-                                                        <li><strong>接入方式 :</strong> {{ frpc.access_method }}</li>
-                                                        {% endif %}
-
-                                                        {% if frpc.user %}
-                                                        <li><strong>使用方 :</strong> {{ frpc.user }}</li>
-                                                        {% endif %}
-
-                                                        {% if frpc.gost_address %}
-                                                        <li><strong>GOST 地址 :</strong> {{ frpc.gost_address }}</li>
-                                                        {% endif %}
-
-                                                        {% if frpc.health_check %}
-                                                        <li><strong>健康检测方式 :</strong> {{ frpc.health_check }}</li>
-                                                        {% endif %}
-
-                                                        {% if frpc.remark_1 and frpc.remark_2 %}
-                                                        <li><strong>备注 :</strong><br>
+                                                        <li><strong>昵称:</strong> {{ frpc.frpc_nickname|default('-', true) }}</li>
+                                                        <li><strong>描述:</strong> {{ frpc.frpc_description|default('-', true) }}</li>
+                                                        <li><strong>端口占用:</strong> {{ frpc.frps_ports|default('-', true) }}</li>
+                                                        <li><strong>供应商:</strong> {{ frpc.supplier|default('-', true) }}</li>
+                                                        <li><strong>供应商交付内容:</strong> {{ frpc.supplier_delivery|default('-', true) }}</li>
+                                                        <li><strong>接入方式:</strong> {{ frpc.access_method|default('-', true) }}</li>
+                                                        <li><strong>使用方:</strong> {{ frpc.user|default('-', true) }}</li>
+                                                        <li><strong>GOST 地址:</strong> {{ frpc.gost_address|default('-', true) }}</li>
+                                                        <li><strong>实际数量:</strong> {{ frpc.actual_count|default('-', true) }}</li>
+                                                        <li><strong>健康检测方式:</strong> {{ frpc.health_check|default('-', true) }}</li>
+                                                        {% if frpc.remark_1 or frpc.remark_2 %}
+                                                        <li><strong>备注:</strong>
                                                             <div style="margin-left: 15px;">
-                                                                <div>{{ frpc.remark_1 }}</div>
-                                                                <div>{{ frpc.remark_2 }}</div>
+                                                                {% if frpc.remark_1 %}<div>{{ frpc.remark_1 }}</div>{% endif %}
+                                                                {% if frpc.remark_2 %}<div>{{ frpc.remark_2 }}</div>{% endif %}
                                                             </div>
                                                         </li>
-                                                        {% else %}
-                                                            {% if frpc.remark_1 %}
-                                                            <li><strong>备注 :</strong> {{ frpc.remark_1 }}</li>
-                                                            {% endif %}
-
-                                                            {% if frpc.remark_2 %}
-                                                            <li><strong>备注 :</strong> {{ frpc.remark_2 }}</li>
-                                                            {% endif %}
                                                         {% endif %}
                                                     </ul>
                                                 </div>

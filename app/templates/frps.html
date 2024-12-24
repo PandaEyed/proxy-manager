@@ -4,9 +4,9 @@
 <div class="card" style="border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="border-radius: 15px 15px 0 0;">
         <h5 class="mb-0">FRPS 机器列表</h5>
-        <a href="{{ url_for('main.add_frps') }}" class="btn btn-sm btn-light">
+        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addFrpsModal">
             <i class="bi bi-plus"></i> 新增 FRPS
-        </a>
+        </button>
     </div>
     <div class="card-body p-0">
         <table class="table table-hover table-striped mb-0" id="dashboardTable" style="border-radius: 15px; overflow: hidden;">
@@ -16,37 +16,41 @@
                     <th onclick="sortTable(1)" style="cursor: pointer;">内网 IP <i class="bi bi-arrow-down-up"></i></th>
                     <th onclick="sortTable(2)" style="cursor: pointer;">公网 IP <i class="bi bi-arrow-down-up"></i></th>
                     <th onclick="sortTable(3)" style="cursor: pointer;">Group Name <i class="bi bi-arrow-down-up"></i></th>
-                    <th onclick="sortTable(4)" style="cursor: pointer;">Datacenter <i class="bi bi-arrow-down-up"></i></th>
-                    <th onclick="sortTable(5)" style="cursor: pointer;">ISP 供应商 <i class="bi bi-arrow-down-up"></i></th>
-                    <th onclick="sortTable(6)" style="cursor: pointer;">ISP 线路 <i class="bi bi-arrow-down-up"></i></th>
-                    <th>Actions</th>
+                    <th onclick="sortTable(4)" style="cursor: pointer;">机房 <i class="bi bi-arrow-down-up"></i></th>
+                    <th onclick="sortTable(5)" style="cursor: pointer;">ISP 线路 <i class="bi bi-arrow-down-up"></i></th>
+                    <th>操作</th>
                 </tr>
             </thead>
             <tbody>
                 {% for frps in frps_list %}
                 <tr style="border-bottom: 1px solid #f1f1f1;">
-                    {% set datacenter_colors = {
-                    'shaxy': '#1E90FF',
-                    'sharb': '#ADFF2F'
-                    } %}
                     <td>{{ frps.vms_id }}</td>
                     <td>{{ frps.internal_ip }}</td>
                     <td>{{ frps.external_ip }}</td>
-                    <td>{{ frps.group_name }}</td>
+                    <td>{{ frps.group_name|default('-', true) }}</td>
                     <td>
                         <span style="display: inline-block; padding: 5px 10px; border-radius: 10px; background-color: {{ datacenter_colors.get(frps.datacenter.lower(), '#e0e0e0') }}; font-size: 0.9rem; color: #000;">
-                            {{ frps.datacenter }}
+                            {{ frps.datacenter|default('-', true) }}
                         </span>
                     </td>
-                    <td>{{ frps.isp_line }}</td>
-                    <td>{{ frps.specific_line }}</td>
                     <td>
-                        <!-- Edit Button -->
-                        <button class="btn btn-sm btn-outline-primary" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#editFrpsModal{{ frps.id }}">
+                        {% if frps.isp_line %}
+                            {{ frps.isp_line }}
+                            {% if frps.specific_line %}
+                            <small class="text-muted">({{ frps.specific_line }})</small>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" style="border-radius: 8px;" 
+                                data-bs-toggle="modal" data-bs-target="#editFrpsModal{{ frps.id }}">
                             <i class="bi bi-pencil-square"></i>
                         </button>
-                        <!-- Delete Button -->
-                        <form method="POST" action="{{ url_for('main.delete_frps', frps_id=frps.id) }}" style="display: inline;">
+                        <form method="POST" action="{{ url_for('main.delete_frps', frps_id=frps.id) }}" 
+                              style="display: inline;" 
+                              onsubmit="return confirm('确定要删除这条记录吗？');">
                             {{ form.hidden_tag() }}
                             <button class="btn btn-sm btn-outline-danger" style="border-radius: 8px;" type="submit">
                                 <i class="bi bi-trash"></i>
@@ -56,7 +60,8 @@
                 </tr>
 
                 <!-- Edit Modal -->
-                <div class="modal fade" id="editFrpsModal{{ frps.id }}" tabindex="-1" aria-labelledby="editFrpsModalLabel{{ frps.id }}" aria-hidden="true">
+                <div class="modal fade" id="editFrpsModal{{ frps.id }}" tabindex="-1" 
+                     aria-labelledby="editFrpsModalLabel{{ frps.id }}" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
                             <form method="POST" action="{{ url_for('main.edit_frps', frps_id=frps.id) }}">
@@ -66,17 +71,62 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label for="vms_id_{{ frps.id }}" class="form-label">VMS ID</label>
-                                        <input type="text" name="vms_id" id="vms_id_{{ frps.id }}" class="form-control" value="{{ frps.vms_id }}">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="vms_id_{{ frps.id }}" class="form-label fw-bold">VMS ID</label>
+                                            <input type="text" name="vms_id" id="vms_id_{{ frps.id }}" 
+                                                   class="form-control" value="{{ frps.vms_id }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Group Name</label>
+                                            <div class="btn-group w-100" role="group">
+                                                <input type="radio" class="btn-check" name="group_name" id="frproxyxy{{ frps.id }}" value="frproxyxy" 
+                                                       {% if frps.group_name == 'frproxyxy' %}checked{% endif %} autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="frproxyxy{{ frps.id }}">frproxyxy</label>
+
+                                                <input type="radio" class="btn-check" name="group_name" id="frproxyrb{{ frps.id }}" value="frproxyrb"
+                                                       {% if frps.group_name == 'frproxyrb' %}checked{% endif %} autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="frproxyrb{{ frps.id }}">frproxyrb</label>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="internal_ip_{{ frps.id }}" class="form-label">内网 IP</label>
-                                        <input type="text" name="internal_ip" id="internal_ip_{{ frps.id }}" class="form-control" value="{{ frps.internal_ip }}">
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="internal_ip_{{ frps.id }}" class="form-label fw-bold">内网 IP</label>
+                                            <input type="text" name="internal_ip" id="internal_ip_{{ frps.id }}" 
+                                                   class="form-control" value="{{ frps.internal_ip }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="external_ip_{{ frps.id }}" class="form-label fw-bold">公网 IP</label>
+                                            <input type="text" name="external_ip" id="external_ip_{{ frps.id }}" 
+                                                   class="form-control" value="{{ frps.external_ip }}" required>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="external_ip_{{ frps.id }}" class="form-label">公网 IP</label>
-                                        <input type="text" name="external_ip" id="external_ip_{{ frps.id }}" class="form-control" value="{{ frps.external_ip }}">
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">机房</label>
+                                            <div class="btn-group w-100" role="group">
+                                                <input type="radio" class="btn-check" name="datacenter" id="SHAXY{{ frps.id }}" value="SHAXY"
+                                                       {% if frps.datacenter == 'SHAXY' %}checked{% endif %} autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="SHAXY{{ frps.id }}">SHAXY</label>
+
+                                                <input type="radio" class="btn-check" name="datacenter" id="SHARB{{ frps.id }}" value="SHARB"
+                                                       {% if frps.datacenter == 'SHARB' %}checked{% endif %} autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="SHARB{{ frps.id }}">SHARB</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="isp_line_{{ frps.id }}" class="form-label fw-bold">ISP 线路</label>
+                                            <input type="text" name="isp_line" id="isp_line_{{ frps.id }}" 
+                                                   class="form-control" value="{{ frps.isp_line }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="specific_line_{{ frps.id }}" class="form-label fw-bold">线路详情</label>
+                                            <input type="text" name="specific_line" id="specific_line_{{ frps.id }}" 
+                                                   class="form-control" value="{{ frps.specific_line }}">
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer" style="border-top: none;">
@@ -90,6 +140,75 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- Add FRPS Modal -->
+<div class="modal fade" id="addFrpsModal" tabindex="-1" aria-labelledby="addFrpsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+            <form method="POST" action="{{ url_for('main.add_frps') }}">
+                {{ form.hidden_tag() }}
+                <div class="modal-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title" id="addFrpsModalLabel">新增 FRPS</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.vms_id.label(class_="form-label fw-bold") }}
+                            {{ form.vms_id(class_="form-control", style="border-radius: 10px;", placeholder="输入 VMS ID") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Group Name</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="group_name" id="frproxyxy_add" value="frproxyxy" checked autocomplete="off">
+                                <label class="btn btn-outline-primary" for="frproxyxy_add">frproxyxy</label>
+
+                                <input type="radio" class="btn-check" name="group_name" id="frproxyrb_add" value="frproxyrb" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="frproxyrb_add">frproxyrb</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.internal_ip.label(class_="form-label fw-bold") }}
+                            {{ form.internal_ip(class_="form-control", style="border-radius: 10px;", placeholder="输入内网 IP") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.external_ip.label(class_="form-label fw-bold") }}
+                            {{ form.external_ip(class_="form-control", style="border-radius: 10px;", placeholder="输入公网 IP") }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">机房</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="datacenter" id="SHAXY_add" value="SHAXY" checked autocomplete="off">
+                                <label class="btn btn-outline-primary" for="SHAXY_add">SHAXY</label>
+
+                                <input type="radio" class="btn-check" name="datacenter" id="SHARB_add" value="SHARB" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="SHARB_add">SHARB</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.isp_line.label(class_="form-label fw-bold") }}
+                            {{ form.isp_line(class_="form-control", style="border-radius: 10px;", placeholder="输入 ISP 线路") }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.specific_line.label(class_="form-label fw-bold") }}
+                            {{ form.specific_line(class_="form-control", style="border-radius: 10px;", placeholder="输入线路详情") }}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: none;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}
