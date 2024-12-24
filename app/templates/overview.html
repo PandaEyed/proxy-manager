@@ -74,31 +74,41 @@
                                             <div class="modal-content" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
                                                 <div class="modal-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
                                                     <h5 class="modal-title" id="frpcModalLabel{{ frpc.id }}">FRPC 详情</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <ul class="list-unstyled" style="line-height: 1.8;">
-                                                        <li><strong>昵称:</strong> {{ frpc.frpc_nickname|default('-', true) }}</li>
-                                                        <li><strong>描述:</strong> {{ frpc.frpc_description|default('-', true) }}</li>
-                                                        <li><strong>端口占用:</strong> {{ frpc.frps_ports|default('-', true) }}</li>
-                                                        <li><strong>供应商:</strong> {{ frpc.supplier|default('-', true) }}</li>
-                                                        <li><strong>供应商交付内容:</strong> {{ frpc.supplier_delivery|default('-', true) }}</li>
-                                                        <li><strong>接入方式:</strong> {{ frpc.access_method|default('-', true) }}</li>
-                                                        <li><strong>使用方:</strong> {{ frpc.user|default('-', true) }}</li>
-                                                        <li><strong>GOST 地址:</strong> {{ frpc.gost_address|default('-', true) }}</li>
-                                                        <li><strong>实际数量:</strong> {{ frpc.actual_count|default('-', true) }}</li>
-                                                        <li><strong>健康检测方式:</strong> {{ frpc.health_check|default('-', true) }}</li>
-                                                        {% if frpc.remark_1 or frpc.remark_2 %}
-                                                        <li><strong>备注:</strong>
-                                                            <div style="margin-left: 15px;">
-                                                                {% if frpc.remark_1 %}<div>{{ frpc.remark_1 }}</div>{% endif %}
-                                                                {% if frpc.remark_2 %}<div>{{ frpc.remark_2 }}</div>{% endif %}
-                                                            </div>
-                                                        </li>
-                                                        {% endif %}
-                                                    </ul>
+                                                    <div class="card">
+                                                        <div class="card-header card-header-custom">
+                                                            <h6>
+                                                                <i class="bi bi-info-circle"></i>
+                                                                详细信息
+                                                            </h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <ul class="list-unstyled" style="line-height: 1.8;">
+                                                                <li><strong>昵称:</strong> {{ frpc.frpc_nickname|default('-', true) }}</li>
+                                                                <li><strong>描述:</strong> {{ frpc.frpc_description|default('-', true) }}</li>
+                                                                <li><strong>端口占用:</strong> {{ frpc.frps_ports|default('-', true) }}</li>
+                                                                <li><strong>供应商:</strong> {{ frpc.supplier|default('-', true) }}</li>
+                                                                <li><strong>供应商交付内容:</strong> {{ frpc.supplier_delivery|default('-', true) }}</li>
+                                                                <li><strong>接入方式:</strong> {{ frpc.access_method|default('-', true) }}</li>
+                                                                <li><strong>使用方:</strong> {{ frpc.user|default('-', true) }}</li>
+                                                                <li><strong>GOST 地址:</strong> {{ frpc.gost_address|default('-', true) }}</li>
+                                                                <li><strong>实际数量:</strong> {{ frpc.actual_count|default('-', true) }}</li>
+                                                                <li><strong>健康检测方式:</strong> {{ frpc.health_check|default('-', true) }}</li>
+                                                                {% if frpc.remark_1 or frpc.remark_2 %}
+                                                                <li><strong>备注:</strong>
+                                                                    <div style="margin-left: 15px;">
+                                                                        {% if frpc.remark_1 %}<div>{{ frpc.remark_1 }}</div>{% endif %}
+                                                                        {% if frpc.remark_2 %}<div>{{ frpc.remark_2 }}</div>{% endif %}
+                                                                    </div>
+                                                                </li>
+                                                                {% endif %}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="modal-footer" style="border-top: none;">
+                                                <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
                                                 </div>
                                             </div>
@@ -137,7 +147,7 @@
         <div class="modal-content" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
             <div class="modal-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
                 <h5 class="modal-title" id="addFrpcModalLabel{{ frps.id }}">添加代理线路 - {{ frps.vms_id }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form method="POST" action="{{ url_for('main.add_frpc') }}" id="addFrpcForm{{ frps.id }}">
@@ -145,9 +155,12 @@
                     <input type="hidden" name="frps_id" value="{{ frps.id }}">
                     
                     <!-- 基本信息卡片 -->
-                    <div class="card mb-4" style="border-radius: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
-                        <div class="card-header bg-light" style="border-radius: 10px 10px 0 0;">
-                            <h6 class="mb-0"><i class="bi bi-info-circle"></i> 基本信息</h6>
+                    <div class="card mb-4">
+                        <div class="card-header card-header-custom">
+                            <h6>
+                                <i class="bi bi-info-circle"></i>
+                                基本信息
+                            </h6>
                         </div>
                         <div class="card-body">
                             <div class="row mb-3">
@@ -157,26 +170,26 @@
                                 </div>
                                 <div class="col-md-6">
                                     {{ form.frpc_nickname.label(class_="form-label") }}
-                                    {{ form.frpc_nickname(class_="form-control", style="border-radius: 8px;", placeholder="输入代理昵称") }}
+                                    {{ form.frpc_nickname(class_="form-control", placeholder="输入代理昵称") }}
                                 </div>
                             </div>
                             
-                            <!-- 其余表单字段保持与 frpc.html 中相同 -->
                             <div class="mb-3">
                                 {{ form.frpc_description.label(class_="form-label") }}
-                                {{ form.frpc_description(class_="form-control", style="border-radius: 8px;", rows=3, placeholder="输入代理说明") }}
+                                {{ form.frpc_description(class_="form-control", rows=3, placeholder="输入代理说明") }}
                             </div>
-                            
-                            <!-- ... 其他字段 ... -->
-                            
+                        </div>
+                        <div class="alert alert-info d-flex align-items-center mt-3 mb-0" style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px;">
+                            <i class="bi bi-info-circle me-2 text-primary"></i>
+                            <small class="text-muted">更多详细信息请在 FRPC 页面进行编辑</small>
                         </div>
                     </div>
 
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary px-4" style="border-radius: 8px;">
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
                             <i class="bi bi-check-lg"></i> 提交
                         </button>
-                        <button type="button" class="btn btn-secondary px-4 ms-2" data-bs-dismiss="modal" style="border-radius: 8px;">
+                        <button type="button" class="btn btn-secondary px-4 ms-2" data-bs-dismiss="modal">
                             <i class="bi bi-x-lg"></i> 取消
                         </button>
                     </div>
