@@ -21,7 +21,7 @@ class AddFrpcForm(FlaskForm):
         validators=[Optional()],
         render_kw={
             "class": "form-select select2",
-            "data-placeholder": "搜索并选择 FRPS...",
+            "data-placeholder": "搜索并选��� FRPS...",
         }
     )
     frpc_nickname = StringField("FRPC 昵称", validators=[Optional(), Length(max=100)])
@@ -33,7 +33,12 @@ class AddFrpcForm(FlaskForm):
     user = StringField("使用方", validators=[Optional(), Length(max=100)])
     gost_address = StringField("Gost 地址", validators=[Optional(), Length(max=255)])
     actual_count = IntegerField("实际数量", validators=[Optional()])
-    health_check = StringField("健康检测方式", validators=[Optional(), Length(max=50)])
+    health_check = SelectField(
+        "健康检测方式",
+        choices=[('', '请选择...'), ('无', None),('Client', 'Client'), ('FRPS', 'FRPS')],
+        validators=[Optional()],
+        render_kw={"class": "form-select"}
+    )
     remark_1 = TextAreaField("备注 1", validators=[Optional()])
     remark_2 = TextAreaField("备注 2", validators=[Optional()])
     submit = SubmitField("提交")
@@ -62,7 +67,12 @@ class EditFrpcForm(FlaskForm):
     access_method = StringField("接入方式", validators=[Optional(), Length(max=50)])
     user = StringField("使用方", validators=[Optional(), Length(max=100)])
     gost_address = StringField("Gost 地址", validators=[Optional(), Length(max=255)])
-    health_check = StringField("健康检测方式", validators=[Optional(), Length(max=50)])
+    health_check = SelectField(
+        "健康检测方式",
+        choices=[('', '请选择...'), ('无', None),('Client', 'Client'), ('FRPS', 'FRPS')],
+        validators=[Optional()],
+        render_kw={"class": "form-select"}
+    )
     remark_1 = TextAreaField("备注 1", validators=[Optional()])
     remark_2 = TextAreaField("备注 2", validators=[Optional()])
     submit = SubmitField("保存更改")
