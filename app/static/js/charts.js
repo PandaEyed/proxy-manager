@@ -1,13 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // 检查数据是否存在
     if (!datacenterCounts || !supplierCounts) {
         console.error("统计数据未定义，请检查后端传递数据！");
         return;
     }
 
-
-
-    // 图表 1: 数据中心占比
+    // 1. 数据中心占比饼图
     const ctxDatacenter = document.getElementById("datacenterChart").getContext("2d");
     new Chart(ctxDatacenter, {
         type: "pie",
@@ -15,49 +12,133 @@ document.addEventListener("DOMContentLoaded", function () {
             labels: Object.keys(datacenterCounts),
             datasets: [{
                 data: Object.values(datacenterCounts),
-                backgroundColor: ["#e8d870", "#6ba3e0"]
+                backgroundColor: ["#4CAF50", "#2196F3"],
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
             plugins: {
                 legend: { position: "top" },
-                title: { display: true, text: "数据中心占比" }
+                title: { 
+                    display: true, 
+                    text: "数据中心分布",
+                    padding: 20
+                }
             }
         }
     });
 
-    // 对供应商占比数据按数量从多到少排序
+    // 2. 供应商分布柱状图
     const sortedSuppliers = Object.entries(supplierCounts)
-        .sort((a, b) => b[1] - a[1]); // 按值降序排列
-    const sortedLabels = sortedSuppliers.map(item => item[0]); // 供应商名称
-    const sortedData = sortedSuppliers.map(item => item[1]);   // 对应数量
-
-    // 为每个供应商分配不同的颜色（随机生成颜色）
-    // 为每个供应商分配相同的颜色
-    const backgroundColors = sortedLabels.map(() => "#6ba3e0"); // 固定为蓝色
-
-    // 图表 2: 供应商占比
+        .sort((a, b) => b[1] - a[1]);
     const ctxSupplier = document.getElementById("supplierChart").getContext("2d");
     new Chart(ctxSupplier, {
         type: "bar",
         data: {
-            labels: sortedLabels,
+            labels: sortedSuppliers.map(item => item[0]),
             datasets: [{
-                label: "供应商占比",
-                data: sortedData,
-                backgroundColor: backgroundColors
+                label: "代理数量",
+                data: sortedSuppliers.map(item => item[1]),
+                backgroundColor: "#2196F3",
+                borderRadius: 5
             }]
         },
         options: {
             responsive: true,
             plugins: {
                 legend: { display: false },
-                title: { display: true, text: "供应商占比 (排序: 数量从多到少)" }
+                title: { 
+                    display: true, 
+                    text: "供应商代理数量分布",
+                    padding: 20
+                }
             },
             scales: {
-                x: { title: { display: true, text: "供应商" } },
-                y: { title: { display: true, text: "数量" } }
+                x: {
+                    grid: { display: false }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
             }
         }
-    });});
+    });
+
+    // 3. FRPS 容量使用趋势图
+    const ctxCapacity = document.getElementById("capacityChart").getContext("2d");
+    const capacityChart = new Chart(ctxCapacity, {
+        type: "line",
+        data: {
+            labels: capacity_data.map(item => item.vms_id),
+            datasets: [{
+                label: "已用容量",
+                data: capacity_data.map(item => item.usage_percent),
+                borderColor: "#FF9800",
+                backgroundColor: "rgba(255, 152, 0, 0.1)",
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: { 
+                    display: true, 
+                    text: "FRPS 容量使用率",
+                    padding: 20
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            return `使用率: ${value}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: value => value + '%'
+                    }
+                }
+            }
+        }
+    });
+
+    // 4. ISP 线路分布图
+    const ctxIsp = document.getElementById("ispChart").getContext("2d");
+    const ispChart = new Chart(ctxIsp, {
+        type: "doughnut",
+        data: {
+            labels: Object.keys(isp_counts),
+            datasets: [{
+                data: Object.values(isp_counts),
+                backgroundColor: [
+                    "#2196F3", "#4CAF50", "#FF9800", "#9C27B0", "#F44336",
+                    "#03A9F4", "#8BC34A", "#FFC107", "#E91E63", "#795548"
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { 
+                    position: "right",
+                    labels: {
+                        padding: 20
+                    }
+                },
+                title: { 
+                    display: true, 
+                    text: "ISP 线路分布",
+                    padding: 20
+                }
+            }
+        }
+    });
+});

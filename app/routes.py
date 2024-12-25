@@ -11,20 +11,46 @@ def flash_and_redirect(message, category, endpoint):
 @main.route("/", methods=["GET"])
 def index():
     frps_list = TableFrps.query.all()
-    # 数据统计逻辑
-    datacenter_counts = {"SHAXY": 0, "SHARB": 0}  # 数据中心占比统计
-    supplier_counts = {}  # 供应商占比统计
+    
+    # 数据中心统计
+    datacenter_counts = {"SHAXY": 0, "SHARB": 0}
     for frps in frps_list:
         datacenter = frps.datacenter.strip().upper() if frps.datacenter else "未知"
         datacenter_counts[datacenter] = datacenter_counts.get(datacenter, 0) + 1
+    filtered_datacenter_count = {key: value for key, value in datacenter_counts.items() if key != '无'}
+    # 供应商统计
+    supplier_counts = {}
+    for frps in frps_list:
         for frpc in frps.frpcs:
             supplier = frpc.supplier or "未知供应商"
             supplier_counts[supplier] = supplier_counts.get(supplier, 0) + (frpc.actual_count or 0)
-    # 去掉未使用的 frps
-    filtered_count = {key: value for key, value in datacenter_counts.items() if key != '无'}
+    
+    # ISP线路统计
+    isp_counts = {}
+    for frps in frps_list:
+        if frps.isp_line:
+            isp_line = frps.isp_line.strip()
+            isp_counts[isp_line] = isp_counts.get(isp_line, 0) + 1
+
+    filtered_isp_count = {key: value for key, value in isp_counts.items() if key != '无'}
+
+    # 准备FRPS容量数据
+    capacity_data = []
+    for frps in frps_list:
+        total_count = sum(frpc.actual_count or 0 for frpc in frps.frpcs)
+        capacity_data.append({
+            'vms_id': frps.vms_id,
+            'total_count': total_count,
+            'usage_percent': min(round((total_count / 1000) * 100, 1), 100)
+        })
+
     return render_template(
-        "index.html", frps_list=frps_list, datacenter_counts=filtered_count,
-        supplier_counts=supplier_counts
+        "index.html",
+        frps_list=frps_list,
+        datacenter_counts=filtered_datacenter_count,
+        supplier_counts=supplier_counts,
+        isp_counts=filtered_isp_count,
+        capacity_data=capacity_data
     )
 
 @main.route("/overview", methods=["GET"])

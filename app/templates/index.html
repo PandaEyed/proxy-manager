@@ -3,34 +3,37 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard">
+<div class="container-fluid px-4">
     <!-- 统计卡片 -->
-    <div class="row g-4 mb-4">
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">统计信息</h5>
+            <div class="card" style="border-radius: 15px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                <div class="card-header card-header-custom">
+                    <h6>
+                        <i class="bi bi-clipboard-data"></i>
+                        统计信息
+                    </h6>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
+                <div class="card-body py-4">
+                    <div class="row">
                         <!-- 总机器数卡片 -->
-                        <div class="col-md-6">
-                            <div class="card h-100">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100" style="border: 1px solid rgba(0,0,0,.05); box-shadow: none;">
                                 <div class="card-body text-center">
-                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <div class="d-flex align-items-center justify-content-center mb-3">
                                         <i class="bi bi-server text-primary" style="font-size: 2rem;"></i>
                                     </div>
                                     <h6 class="text-muted mb-2">总机器数</h6>
-                                    <h3 class="fw-bold text-primary mb-0">{{ frps_list|length - 1 }}</h3>
+                                    <h3 class="fw-bold text-primary mb-0">{{ frps_list|length }}</h3>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- 代理总量卡片 -->
-                        <div class="col-md-6">
-                            <div class="card h-100">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100" style="border: 1px solid rgba(0,0,0,.05); box-shadow: none;">
                                 <div class="card-body text-center">
-                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <div class="d-flex align-items-center justify-content-center mb-3">
                                         <i class="bi bi-hdd-network text-success" style="font-size: 2rem;"></i>
                                     </div>
                                     <h6 class="text-muted mb-2">代理总量</h6>
@@ -47,27 +50,51 @@
     </div>
 
     <!-- 图表区域 -->
-    <div class="row g-4">
-        <!-- 数据中心占比图表 -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="mb-0 text-center">SHAXY 和 SHARB 占比</h6>
+    <div class="dashboard">
+        <div class="row g-4 mb-4">
+            <!-- 第一行：数据中心和供应商分布 -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header card-header-custom">
+                        <h6><i class="bi bi-pie-chart"></i> 数据中心分布</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="datacenterChart"></canvas>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <canvas id="datacenterChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header card-header-custom">
+                        <h6><i class="bi bi-bar-chart"></i> 供应商分布</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="supplierChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 供应商占比图表 -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="mb-0 text-center">供应商占比</h6>
+        <div class="row g-4">
+            <!-- 第二行：容量使用率和ISP线路分布 -->
+            <div class="col-md-8">
+                <div class="card h-100">
+                    <div class="card-header card-header-custom">
+                        <h6><i class="bi bi-graph-up"></i> FRPS 容量使用趋势</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="capacityChart"></canvas>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <canvas id="supplierChart"></canvas>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header card-header-custom">
+                        <h6><i class="bi bi-diagram-3"></i> ISP 线路分布</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="ispChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -79,6 +106,8 @@
 <script>
     const datacenterCounts = {{ datacenter_counts | tojson | safe }};
     const supplierCounts = {{ supplier_counts | tojson | safe }};
+    const capacity_data = {{ capacity_data|tojson|safe }};
+    const isp_counts = {{ isp_counts|tojson|safe }};
 </script>
 <script src="{{ url_for('static', filename='js/charts.js') }}" defer></script>
 {% endblock %}

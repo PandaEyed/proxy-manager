@@ -192,10 +192,10 @@ body {
 
 /* 卡片样式 */
 .card {
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-    margin-bottom: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
 }
 
 .card-header {
@@ -378,25 +378,28 @@ footer {
     margin: 0.25rem 0;  /* 调整垂直边距 */
 }
 
-/* 卡片标题统一��式 */
+/* 卡片标题样式优化 */
 .card-header-custom {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, var(--primary-color), #0056b3);
+    border-bottom: none;
+    padding: 1rem 1.25rem;
+    border-radius: 10px 10px 0 0;
 }
 
 .card-header-custom h6 {
-    color: var(--primary-color);
+    color: white;
     font-weight: 500;
     display: flex;
     align-items: center;
     margin: 0;
     font-size: 0.95rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .card-header-custom h6 i {
     margin-right: 0.75rem;
     font-size: 1.1rem;
+    opacity: 0.9;
 }
 
 .card-body {
@@ -426,4 +429,49 @@ footer {
 .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
     background-color: var(--primary-color) !important;
     color: white !important;
+}
+
+/* 统计卡片样式 */
+.stats-card {
+    border: 1px solid rgba(0,0,0,.05);
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.stats-card .card-header-custom {
+    background: none;  /* 统计卡片内部的卡片保持简洁风格 */
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.stats-card .card-header-custom h6 {
+    color: var(--primary-color);
+    text-shadow: none;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+
+.stats-card i {
+    opacity: 0.9;
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover i {
+    transform: scale(1.1);
+}
+
+.stats-card h6 {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.stats-card h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
 }
