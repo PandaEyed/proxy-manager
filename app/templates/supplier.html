@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3">
+            <i class="bi bi-building-fill"></i>
+            供应商管理
+        </h2>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+            <i class="bi bi-plus-circle me-1"></i>
+            添加供应商
+        </button>
+    </div>
+
+    <!-- 供应商卡片列表 -->
+    <div class="row" data-masonry='{"percentPosition": true}' style="min-height: 100vh;">
+        {% for supplier in suppliers %}
+        <div class="col-12 col-md-6 col-lg-4 mb-4">
+            <div class="card h-100" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                <div class="card-header bg-gradient-primary text-white border-0 d-flex justify-content-between align-items-center" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="card-title mb-0 text-truncate me-2">
+                        <i class="bi bi-building me-2"></i>
+                        {{ supplier.name }}
+                    </h5>
+                    <div class="dropdown flex-shrink-0">
+                        <button class="btn btn-link text-white" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('main.supplier_detail', supplier_id=supplier.id) }}">
+                                    <i class="bi bi-info-circle me-2"></i>查看详情
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editSupplierModal{{ supplier.id }}">
+                                    <i class="bi bi-pencil me-2"></i>编辑
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <form action="{{ url_for('main.delete_supplier', supplier_id=supplier.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="dropdown-item text-danger" onclick="return confirm('确定要删除此供应商吗？')">
+                                        <i class="bi bi-trash me-2"></i>删除
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body bg-light py-3">
+                    <div class="mb-3">
+                        <h6 class="text-primary fw-bold mb-2">联系信息</h6>
+                        <p class="mb-2 text-dark d-flex align-items-center">
+                            <i class="bi bi-person me-2 text-primary"></i>
+                            <span class="text-truncate">{{ supplier.contact or '暂无联系人' }}</span>
+                        </p>
+                        <p class="mb-0 text-dark d-flex align-items-center">
+                            <i class="bi bi-telephone me-2 text-primary"></i>
+                            <span class="text-truncate">{{ supplier.phone or '暂无联系电话' }}</span>
+                        </p>
+                    </div>
+                    <div>
+                        <h6 class="text-primary fw-bold mb-2">分配的 FRPS</h6>
+                        {% if supplier.frps_list %}
+                        <div class="list-group list-group-flush gap-2">
+                            {% for frps in supplier.frps_list %}
+                            <div class="list-group-item bg-white rounded p-2 shadow-sm">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="text-truncate me-2">
+                                        <strong class="text-dark d-block text-truncate">{{ frps.vms_id }}</strong>
+                                        <small class="text-muted d-block text-truncate">{{ frps.external_ip }}</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill flex-shrink-0">{{ frps.datacenter }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted mb-0">暂未分配 FRPS</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 py-2" style="border-radius: 0 0 15px 15px;">
+                    <small class="text-muted d-block text-truncate">
+                        <i class="bi bi-clock me-1"></i>
+                        创建于：{{ supplier.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 添加供应商模态框 -->
+    <div class="modal fade" id="addSupplierModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-building-add me-2"></i>
+                        添加供应商
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ url_for('main.add_supplier') }}" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">供应商名称</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">联系人</label>
+                            <input type="text" class="form-control" name="contact">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">联系电话</label>
+                            <input type="text" class="form-control" name="phone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">分配 FRPS</label>
+                            <select class="form-select" name="frps_ids" multiple>
+                                {% for frps in frps_list %}
+                                <option value="{{ frps.id }}">
+                                    {{ frps.vms_id }} ({{ frps.external_ip }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">按住 Ctrl 键可多选</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">添加</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
