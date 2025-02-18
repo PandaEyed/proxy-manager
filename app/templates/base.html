@@ -18,9 +18,19 @@
     <div class="d-flex flex-grow-1">
         {% include 'partials/sidebar.html' %}
         <!-- Main Content -->
-        <main id="content" class="flex-grow-1 p-3">
-            {% block content %}{% endblock %}
-        </main>
+        <div class="d-flex flex-column flex-grow-1">
+            <!-- User Info and Logout Button -->
+            <div class="bg-light border-bottom px-3 py-2 d-flex justify-content-end align-items-center">
+                {% if current_user.is_authenticated %}
+                <span class="me-3">欢迎，{{ current_user.username }}</span>
+                <a href="{{ url_for('main.logout') }}" class="btn btn-outline-danger btn-sm">退出登录</a>
+                {% endif %}
+            </div>
+            <!-- Main Content Area -->
+            <main id="content" class="p-3 flex-grow-1">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
     </div>
 
     <!-- Footer -->

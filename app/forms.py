@@ -1,6 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField, TextAreaField, FieldList, FormField,SelectField
+from wtforms import StringField, IntegerField, SubmitField, TextAreaField, FieldList, FormField, SelectField, PasswordField
 from wtforms.validators import DataRequired, Optional, IPAddress, Length, NumberRange
+
+
+class LoginForm(FlaskForm):
+    username = StringField('用户名', validators=[DataRequired()])
+    password = PasswordField('密码', validators=[DataRequired()])
+    submit = SubmitField('登录')
 
 
 class AddFrpsForm(FlaskForm):

@@ -1,59 +1,62 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from app import db
-from app.models import TableFrps, TableFrpc
-from app.forms import AddFrpsForm, AddFrpcForm, EditFrpsForm, EditFrpcForm
+from app.models import TableFrps, TableFrpc, User, Supplier
+from app.forms import AddFrpsForm, AddFrpcForm, EditFrpsForm, EditFrpcForm, LoginForm
+from app.services.statistics import StatisticsService
+
+login_manager = LoginManager()
+login_manager.login_view = 'main.login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 main = Blueprint('main', __name__)
 def flash_and_redirect(message, category, endpoint):
     """抽象 flash 消息和重定向逻辑"""
     flash(message, category)
     return redirect(url_for(endpoint))
+@main.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            return redirect(url_for('main.index'))
+        flash('用户名或密码错误', 'error')
+    return render_template('login.html', form=form)
+
+@main.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('main.login'))
+
 @main.route("/", methods=["GET"])
+@login_required
 def index():
     frps_list = TableFrps.query.all()
-    
-    # 数据中心统计
-    datacenter_counts = {"SHAXY": 0, "SHARB": 0}
-    for frps in frps_list:
-        datacenter = frps.datacenter.strip().upper() if frps.datacenter else "未知"
-        datacenter_counts[datacenter] = datacenter_counts.get(datacenter, 0) + 1
-    filtered_datacenter_count = {key: value for key, value in datacenter_counts.items() if key != '无'}
-    # 供应商统计
-    supplier_counts = {}
-    for frps in frps_list:
-        for frpc in frps.frpcs:
-            supplier = frpc.supplier or "未知供应商"
-            supplier_counts[supplier] = supplier_counts.get(supplier, 0) + (frpc.actual_count or 0)
-    
-    # ISP线路统计
-    isp_counts = {}
-    for frps in frps_list:
-        if frps.isp_line:
-            isp_line = frps.isp_line.strip()
-            isp_counts[isp_line] = isp_counts.get(isp_line, 0) + 1
-
-    filtered_isp_count = {key: value for key, value in isp_counts.items() if key != '无'}
-
-    # 准备FRPS容量数据
-    capacity_data = []
-    for frps in frps_list:
-        total_count = sum(frpc.actual_count or 0 for frpc in frps.frpcs)
-        capacity_data.append({
-            'vms_id': frps.vms_id,
-            'total_count': total_count,
-            'usage_percent': min(round((total_count / 1000) * 100, 1), 100)
-        })
-
+    # 使用StatisticsService获取统计数据
+    filtered_count = StatisticsService.get_datacenter_statistics(frps_list)
+    supplier_counts = StatisticsService.get_supplier_statistics(frps_list)
+    isp_counts = StatisticsService.get_isp_statistics(frps_list)
+    capacity_data = StatisticsService.get_capacity_statistics(frps_list)
     return render_template(
-        "index.html",
-        frps_list=frps_list,
-        datacenter_counts=filtered_datacenter_count,
+        "index.html", 
+        frps_list=frps_list, 
+        datacenter_counts=filtered_count,
         supplier_counts=supplier_counts,
-        isp_counts=filtered_isp_count,
+        isp_counts=isp_counts,
         capacity_data=capacity_data
     )
 
 @main.route("/overview", methods=["GET"])
+@login_required
 def overview():
     frps_list = TableFrps.query.all()
     form = AddFrpcForm()
@@ -65,6 +68,7 @@ def overview():
 
 # FRPS 列表页面
 @main.route("/frps", methods=["GET", "POST"])
+@login_required
 def frps():
     frps_list = TableFrps.query.all()
     form = AddFrpsForm()  # 改用 AddFrpsForm 而不是 EditFrpsForm
@@ -99,6 +103,7 @@ def frps():
 
 # FRPC 列表页面
 @main.route("/frpc", methods=["GET", "POST"])
+@login_required
 def frpc():
     frpc_list = TableFrpc.query.join(TableFrps).all()
     form = EditFrpcForm()
@@ -128,6 +133,7 @@ def frpc():
     )
 
 @main.route("/add_frps", methods=["GET", "POST"])
+@login_required
 def add_frps():
     """添加 FRPS 数据"""
     form = AddFrpsForm()
@@ -149,6 +155,7 @@ def add_frps():
 
 
 @main.route("/add_frpc", methods=["GET", "POST"])
+@login_required
 def add_frpc():
     form = AddFrpcForm()
     # 获取所有 FRPS 数据
@@ -188,6 +195,7 @@ def add_frpc():
     )
 
 @main.route("/edit_frps/<int:frps_id>", methods=["POST"])
+@login_required
 def edit_frps(frps_id):
     frps = TableFrps.query.get_or_404(frps_id)
     try:
@@ -210,6 +218,7 @@ def edit_frps(frps_id):
 
 
 @main.route("/delete_frps/<int:frps_id>", methods=["POST"])
+@login_required
 def delete_frps(frps_id):
     frps = TableFrps.query.get_or_404(frps_id)
     db.session.delete(frps)
@@ -219,6 +228,7 @@ def delete_frps(frps_id):
 
 
 @main.route('/edit_frpc/<int:frpc_id>', methods=['POST'])
+@login_required
 def edit_frpc(frpc_id):
     frpc = TableFrpc.query.get_or_404(frpc_id)
     
@@ -250,6 +260,7 @@ def edit_frpc(frpc_id):
     return redirect(url_for('main.frpc'))
 
 @main.route("/delete_frpc/<int:frpc_id>", methods=["POST"])
+@login_required
 def delete_frpc(frpc_id):
     """删除 FRPC 数据"""
     frpc = TableFrpc.query.get_or_404(frpc_id)
@@ -257,3 +268,116 @@ def delete_frpc(frpc_id):
     db.session.commit()
     flash("FRPC deleted successfully!", "success")
     return redirect(url_for("main.frpc"))
+
+@main.route("/supplier", methods=["GET"])
+@login_required
+def supplier():
+    suppliers = Supplier.query.all()
+    frps_list = TableFrps.query.all()
+    return render_template(
+        "supplier.html",
+        suppliers=suppliers,
+        frps_list=frps_list
+    )
+
+@main.route("/supplier/<int:supplier_id>", methods=["GET"])
+@login_required
+def supplier_detail(supplier_id):
+    supplier = Supplier.query.get_or_404(supplier_id)
+    return render_template("supplier_detail.html", supplier=supplier)
+
+@main.route("/add_supplier", methods=["POST"])
+@login_required
+def add_supplier():
+    try:
+        supplier = Supplier(
+            name=request.form.get('name'),
+            contact=request.form.get('contact'),
+            phone=request.form.get('phone')
+        )
+        
+        # 处理FRPS分配
+        frps_ids = request.form.getlist('frps_ids')
+        if frps_ids:
+            frps_list = TableFrps.query.filter(TableFrps.id.in_(frps_ids)).all()
+            supplier.frps_list.extend(frps_list)
+        
+        db.session.add(supplier)
+        db.session.commit()
+        flash("供应商添加成功！", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"添加失败：{str(e)}", "error")
+    
+    return redirect(url_for("main.supplier"))
+
+@main.route("/assign_frps_to_supplier/<int:supplier_id>", methods=["POST"])
+@login_required
+def assign_frps_to_supplier(supplier_id):
+    supplier = Supplier.query.get_or_404(supplier_id)
+    
+    try:
+        frps_ids = request.form.getlist('frps_ids')
+        if frps_ids:
+            frps_list = TableFrps.query.filter(TableFrps.id.in_(frps_ids)).all()
+            for frps in frps_list:
+                if frps not in supplier.frps_list:
+                    supplier.frps_list.append(frps)
+            
+            db.session.commit()
+            flash("FRPS分配成功！", "success")
+        else:
+            flash("请选择要分配的FRPS", "warning")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"分配失败：{str(e)}", "error")
+    
+    return redirect(url_for("main.supplier_detail", supplier_id=supplier_id))
+
+@main.route("/remove_frps_from_supplier/<int:supplier_id>/<int:frps_id>", methods=["POST"])
+@login_required
+def remove_frps_from_supplier(supplier_id, frps_id):
+    supplier = Supplier.query.get_or_404(supplier_id)
+    frps = TableFrps.query.get_or_404(frps_id)
+    
+    try:
+        supplier.frps_list.remove(frps)
+        db.session.commit()
+        flash("已成功解除FRPS分配！", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"解除分配失败：{str(e)}", "error")
+    
+    return redirect(url_for("main.supplier_detail", supplier_id=supplier_id))
+
+@main.route("/delete_supplier/<int:supplier_id>", methods=["POST"])
+@login_required
+def delete_supplier(supplier_id):
+    supplier = Supplier.query.get_or_404(supplier_id)
+    try:
+        db.session.delete(supplier)
+        db.session.commit()
+        flash("供应商删除成功！", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"删除失败：{str(e)}", "error")
+    return redirect(url_for("main.supplier"))
+
+@main.route("/supplier/<int:supplier_id>/frps/<int:frps_id>/update_note", methods=["POST"])
+@login_required
+def update_frps_note(supplier_id, frps_id):
+    """更新供应商关联的FRPS备注"""
+    supplier = Supplier.query.get_or_404(supplier_id)
+    frps = TableFrps.query.get_or_404(frps_id)
+    
+    if frps not in supplier.frps_list:
+        flash("该FRPS不属于此供应商", "error")
+        return redirect(url_for("main.supplier_detail", supplier_id=supplier_id))
+    
+    note = request.form.get("note", "")
+    # 添加note字段到TableFrps模型中
+    frps.note = note
+    db.session.commit()
+    
+    flash("FRPS备注已更新", "success")
+    return redirect(url_for("main.supplier_detail", supplier_id=supplier_id))

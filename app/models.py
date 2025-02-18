@@ -1,6 +1,14 @@
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 from app import db
+
+# 供应商和FRPS的多对多关系表
+supplier_frps = db.Table('supplier_frps',
+    db.Column('supplier_id', db.Integer, db.ForeignKey('suppliers.id'), primary_key=True),
+    db.Column('frps_id', db.Integer, db.ForeignKey('table_frps.id'), primary_key=True)
+)
 
 class TableFrps(db.Model):
     __tablename__ = 'table_frps'
@@ -13,12 +21,37 @@ class TableFrps(db.Model):
     datacenter = db.Column(db.String(100), nullable=True, comment="机房位置")
     isp_line = db.Column(db.String(100), nullable=True, comment="ISP 线路")
     specific_line = db.Column(db.String(100), nullable=True, comment="线路详细信息")
+    note = db.Column(db.Text, nullable=True, comment="FRPS备注")
 
     # Relationship: One FRPS to Many FRPCs
     frpcs = db.relationship('TableFrpc', backref='frps', lazy=True)
+    # Relationship: Many FRPS to Many Suppliers
+    suppliers = db.relationship('Supplier', secondary=supplier_frps, back_populates='frps_list')
 
     def __repr__(self):
-        return f"<TableFrps(id={self.id}, vms_id={self.vms_id})>"
+        return f"<TableFrps(id={self.id}, vms_id={self.vms_id})"
+
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256))
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def get_id(self):
+        return str(self.id)
+
+    def __repr__(self):
+        return f'<User {self.username}>'
 
 
 class TableFrpc(db.Model):
@@ -42,5 +75,21 @@ class TableFrpc(db.Model):
     frps_id = db.Column(db.Integer, db.ForeignKey('table_frps.id'), nullable=True, default=0, comment="FRPS ID")
 
     def __repr__(self):
-        return f"<TableFrpc(id={self.id}, frpc_nickname={self.frpc_nickname})>"
+        return f"<TableFrpc(id={self.id}, frpc_nickname={self.frpc_nickname})"
+
+
+class Supplier(db.Model):
+    __tablename__ = 'suppliers'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False, unique=True, comment="供应商名称")
+    contact = db.Column(db.String(100), nullable=True, comment="联系人")
+    phone = db.Column(db.String(20), nullable=True, comment="联系电话")
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationship: Many Suppliers to Many FRPS
+    frps_list = db.relationship('TableFrps', secondary=supplier_frps, back_populates='suppliers')
+
+    def __repr__(self):
+        return f"<Supplier(id={self.id}, name={self.name})"
 

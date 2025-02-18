@@ -40,5 +40,13 @@
                 <span class="menu-text">FRPC</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ url_for('main.supplier') }}" 
+               class="nav-link {{ 'active' if request.endpoint == 'main.supplier' }}" 
+               title="供应商管理">
+                <i class="bi bi-building"></i>
+                <span class="menu-text">供应商管理</span>
+            </a>
+        </li>
     </ul>
 </nav>
