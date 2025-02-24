@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="h4 mb-0">
+                <i class="bi bi-hdd-network me-2 text-primary"></i>
+                我的 FRPS 资产
+            </h2>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for frps in frps_list %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white border-0 d-flex justify-content-between align-items-center" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="card-title mb-0 text-truncate me-2">
+                        <i class="bi bi-hdd-network me-2"></i>
+                        {{ frps.vms_id }}
+                    </h5>
+                    <span class="badge bg-{{ 'primary' if frps.datacenter == 'shaxy' else 'success' }}">
+                        {{ frps.datacenter }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">基本信息</h6>
+                        <p class="mb-1"><strong>公网 IP：</strong>{{ frps.external_ip }}</p>
+                        <p class="mb-1"><strong>服务端口：</strong>{{ frps.service_port }}</p>
+                        <p class="mb-1"><strong>可用端口范围：</strong>{{ frps.port_range }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">使用情况</h6>
+                        <div class="d-flex justify-content-between">
+                            <p class="mb-1"><strong>分配数量：</strong>{{ frps.allocated_count }}</p>
+                            <p class="mb-1"><strong>在线数量：</strong>{{ frps.online_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-info" onclick="showMonitorDetails({{ frps.id }})" title="监控详情">
+                            <i class="bi bi-graph-up me-1"></i>监控详情
+                        </button>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#configModal{{ frps.id }}" title="上线代理">
+                            <i class="bi bi-play-circle me-1"></i>上线代理
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center" role="alert">
+                <i class="bi bi-info-circle me-2"></i>暂无分配的 FRPS 资产
+            </div>
+        </div>
+        {% endfor %}
+
+{% for frps in frps_list %}
+<!-- 配置示例模态窗 -->
+<div class="modal fade" id="configModal{{ frps.id }}" tabindex="-1" aria-labelledby="configModalLabel{{ frps.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="configModalLabel{{ frps.id }}">
+                    <i class="bi bi-code-square me-2"></i>
+                    服务端配置示例 - {{ frps.vms_id }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="position-relative">
+                    <pre class="bg-light p-3 rounded"><code id="configCode{{ frps.id }}">[common]
+server_addr = {{ frps.external_ip }}
+server_port = {{ frps.service_port }}
+token = {{ frps.token }}</code></pre>
+                    <button class="btn btn-sm btn-primary position-absolute top-0 end-0 m-2" onclick="copyConfig({{ frps.id }})">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyConfig(frpsId) {
+    const configCode = document.getElementById(`configCode${frpsId}`);
+    navigator.clipboard.writeText(configCode.textContent).then(() => {
+        const copyBtn = document.querySelector(`#configModal${frpsId} .btn-primary`);
+        copyBtn.innerHTML = '<i class="bi bi-check2"></i>';
+        setTimeout(() => {
+            copyBtn.innerHTML = '<i class="bi bi-clipboard"></i>';
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

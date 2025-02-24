@@ -4,10 +4,15 @@ from flask_login import UserMixin
 
 from app import db
 
-# 供应商和FRPS的多对多关系表
+# 定义中间表
 supplier_frps = db.Table('supplier_frps',
     db.Column('supplier_id', db.Integer, db.ForeignKey('suppliers.id'), primary_key=True),
-    db.Column('frps_id', db.Integer, db.ForeignKey('table_frps.id'), primary_key=True)
+    db.Column('frps_id', db.Integer, db.ForeignKey('table_frps.id'), primary_key=True),
+    db.Column('service_port', db.Integer, nullable=False, default=7000),
+    db.Column('port_range', db.String(50), nullable=False, default="7001-7999"),
+    db.Column('allocated_count', db.Integer, nullable=False, default=0),
+    db.Column('online_count', db.Integer, nullable=False, default=0),
+    db.Column('token', db.String(100), nullable=True)
 )
 
 class TableFrps(db.Model):
@@ -27,9 +32,23 @@ class TableFrps(db.Model):
     frpcs = db.relationship('TableFrpc', backref='frps', lazy=True)
     # Relationship: Many FRPS to Many Suppliers
     suppliers = db.relationship('Supplier', secondary=supplier_frps, back_populates='frps_list')
+    supplier_associations = db.relationship('Supplier',
+        secondary=supplier_frps,
+        viewonly=True,
+        lazy='dynamic',
+        backref=db.backref('frps_associations', lazy='dynamic')
+    )
 
     def __repr__(self):
         return f"<TableFrps(id={self.id}, vms_id={self.vms_id})"
+
+    def get_supplier_info(self, supplier_id):
+        """获取特定供应商的关联信息"""
+        association = db.session.query(supplier_frps).filter_by(
+            supplier_id=supplier_id,
+            frps_id=self.id
+        ).first()
+        return association
 
 
 class User(UserMixin, db.Model):
@@ -39,7 +58,10 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(256))
     email = db.Column(db.String(120), unique=True, nullable=False)
+    role = db.Column(db.String(20), nullable=False, default='supplier', comment="用户权限：admin 或 supplier")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id'), nullable=True)
+    supplier = db.relationship('Supplier', backref=db.backref('user', uselist=False))
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

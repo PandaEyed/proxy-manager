@@ -6,7 +6,7 @@ with app.app_context():
     # 检查是否已存在管理员用户
     admin = User.query.filter_by(username='admin').first()
     if not admin:
-        admin = User(username='admin', email='admin@example.com')
+        admin = User(username='admin', email='admin@example.com', role='admin')
         admin.set_password('admin')
         db.session.add(admin)
         db.session.commit()

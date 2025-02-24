@@ -2,9 +2,10 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from app import db
-from app.models import TableFrps, TableFrpc, User, Supplier
+from app.models import TableFrps, TableFrpc, User, Supplier, supplier_frps
 from app.forms import AddFrpsForm, AddFrpcForm, EditFrpsForm, EditFrpcForm, LoginForm
 from app.services.statistics import StatisticsService
+from app.decorators import admin_required, supplier_required
 
 login_manager = LoginManager()
 login_manager.login_view = 'main.login'
@@ -21,15 +22,19 @@ def flash_and_redirect(message, category, endpoint):
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
+        if current_user.role == 'supplier':
+            return redirect(url_for('main.supplier_my_frps'))
         return redirect(url_for('main.index'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
+            if user.role == 'supplier':
+                return redirect(url_for('main.supplier_my_frps'))
             return redirect(url_for('main.index'))
         flash('用户名或密码错误', 'error')
-    return render_template('login.html', form=form)
+    return render_template('auth/login.html', form=form)
 
 @main.route('/logout')
 @login_required
@@ -39,6 +44,7 @@ def logout():
 
 @main.route("/", methods=["GET"])
 @login_required
+@admin_required
 def index():
     frps_list = TableFrps.query.all()
     # 使用StatisticsService获取统计数据
@@ -57,6 +63,7 @@ def index():
 
 @main.route("/overview", methods=["GET"])
 @login_required
+@admin_required
 def overview():
     frps_list = TableFrps.query.all()
     form = AddFrpcForm()
@@ -69,6 +76,7 @@ def overview():
 # FRPS 列表页面
 @main.route("/frps", methods=["GET", "POST"])
 @login_required
+@admin_required
 def frps():
     frps_list = TableFrps.query.all()
     form = AddFrpsForm()  # 改用 AddFrpsForm 而不是 EditFrpsForm
@@ -104,6 +112,7 @@ def frps():
 # FRPC 列表页面
 @main.route("/frpc", methods=["GET", "POST"])
 @login_required
+@admin_required
 def frpc():
     frpc_list = TableFrpc.query.join(TableFrps).all()
     form = EditFrpcForm()
@@ -271,6 +280,7 @@ def delete_frpc(frpc_id):
 
 @main.route("/supplier", methods=["GET"])
 @login_required
+@admin_required
 def supplier():
     suppliers = Supplier.query.all()
     frps_list = TableFrps.query.all()
@@ -284,7 +294,9 @@ def supplier():
 @login_required
 def supplier_detail(supplier_id):
     supplier = Supplier.query.get_or_404(supplier_id)
-    return render_template("supplier_detail.html", supplier=supplier)
+    # 获取所有未分配给当前供应商的FRPS列表
+    available_frps_list = TableFrps.query.filter(~TableFrps.suppliers.contains(supplier)).all()
+    return render_template("supplier_detail.html", supplier=supplier, available_frps_list=available_frps_list)
 
 @main.route("/add_supplier", methods=["POST"])
 @login_required
@@ -380,4 +392,72 @@ def update_frps_note(supplier_id, frps_id):
     db.session.commit()
     
     flash("FRPS备注已更新", "success")
+    return redirect(url_for("main.supplier_detail", supplier_id=supplier_id))
+
+@main.route("/supplier/my-frps", methods=["GET"])
+@login_required
+@supplier_required
+def supplier_my_frps():
+    """供应商查看自己的FRPS资产"""
+    if not current_user.supplier:
+        flash("您还未关联到任何供应商账户", "error")
+        return redirect(url_for("main.login"))
+    
+    # 获取当前供应商的FRPS列表，包括关联表中的数据
+    supplier_id = current_user.supplier.id
+    frps_list = TableFrps.query.join(
+        supplier_frps,
+        supplier_frps.c.frps_id == TableFrps.id
+    ).filter(
+        supplier_frps.c.supplier_id == supplier_id
+    ).all()
+
+    # 为每个FRPS获取关联表数据
+    for frps in frps_list:
+        # 使用get_supplier_info方法获取关联信息
+        association = frps.get_supplier_info(supplier_id)
+        if association:
+            # 将关联信息存储为属性
+            frps.service_port = association.service_port
+            frps.port_range = association.port_range
+            frps.allocated_count = association.allocated_count
+            frps.online_count = association.online_count
+            frps.token = association.token
+    
+    return render_template("supplier/my_frps.html", frps_list=frps_list)
+
+@main.route("/supplier/my-contract", methods=["GET"])
+@login_required
+@supplier_required
+def supplier_my_contract():
+    """供应商查看自己的合同"""
+    if not current_user.supplier:
+        flash("您还未关联到任何供应商账户", "error")
+        return redirect(url_for("main.login"))
+    
+    return render_template("supplier/my_contract.html")
+
+@main.route("/supplier/help", methods=["GET"])
+@login_required
+@supplier_required
+def supplier_help():
+    """供应商帮助文档"""
+    return render_template("supplier/help.html")
+
+@main.route("/supplier/<int:supplier_id>/update", methods=["POST"])
+@login_required
+def update_supplier(supplier_id):
+    """更新供应商信息"""
+    supplier = Supplier.query.get_or_404(supplier_id)
+    try:
+        supplier.name = request.form.get('name')
+        supplier.contact = request.form.get('contact')
+        supplier.phone = request.form.get('phone')
+        
+        db.session.commit()
+        flash("供应商信息更新成功！", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"更新失败：{str(e)}", "error")
+    
     return redirect(url_for("main.supplier_detail", supplier_id=supplier_id))

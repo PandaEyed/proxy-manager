@@ -17,10 +17,16 @@
         <div class="col-md-6 mb-4">
             <div class="card" style="border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); background: linear-gradient(135deg, #2196F3, #1976D2);">
                 <div class="card-header border-0" style="background: transparent;">
-                    <h5 class="card-title mb-0 text-white">
-                        <i class="bi bi-info-circle me-2"></i>
-                        基本信息
-                    </h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 text-white">
+                            <i class="bi bi-info-circle me-2"></i>
+                            基本信息
+                        </h5>
+                        <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#editSupplierModal">
+                            <i class="bi bi-pencil me-1"></i>
+                            编辑
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body text-white">
                     <div class="mb-3">
@@ -39,6 +45,14 @@
                         <label class="text-white-50">创建时间</label>
                         <p>{{ supplier.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
                     </div>
+                </div>
+                <div class="card-footer border-0" style="background: rgba(255, 255, 255, 0.1);">
+                    <form action="{{ url_for('main.delete_supplier', supplier_id=supplier.id) }}" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-outline-light w-100" onclick="return confirm('确定要删除此供应商吗？')">
+                            <i class="bi bi-trash me-1"></i>
+                            删除供应商
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -115,8 +129,91 @@
     </div>
 </div>
 
+    <!-- 编辑供应商信息模态框 -->
+    <div class="modal fade" id="editSupplierModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-pencil me-2"></i>
+                        编辑供应商信息
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ url_for('main.update_supplier', supplier_id=supplier.id) }}" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">供应商名称</label>
+                            <input type="text" class="form-control" name="name" value="{{ supplier.name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">联系人</label>
+                            <input type="text" class="form-control" name="contact" value="{{ supplier.contact }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">联系电话</label>
+                            <input type="text" class="form-control" name="phone" value="{{ supplier.phone }}">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- 分配 FRPS 模态框 -->
     <div class="modal fade" id="assignFrpsModal" tabindex="-1">
+    {% block extra_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return "没有找到匹配的FRPS服务器";
+                    }
+                },
+                templateResult: function(data) {
+                    if (data.loading) return data.text;
+                    var $container = $(
+                        "<div class='select2-result-frps'>" +
+                        "<div class='select2-result-frps__title'>" + data.text + "</div>" +
+                        "</div>"
+                    );
+                    return $container;
+                },
+                matcher: function(params, data) {
+                    if ($.trim(params.term) === '') {
+                        return data;
+                    }
+                    if (typeof data.text === 'undefined') {
+                        return null;
+                    }
+                    var term = params.term.toLowerCase();
+                    var text = data.text.toLowerCase();
+                    if (text.indexOf(term) > -1) {
+                        return data;
+                    }
+                    return null;
+                }
+            });
+
+            // 表单提交前验证
+            $('#assignFrpsForm').on('submit', function(e) {
+                if (!$('.select2').val() || $('.select2').val().length === 0) {
+                    e.preventDefault();
+                    alert('请至少选择一个FRPS服务器');
+                    return false;
+                }
+            });
+        });
+    </script>
+    {% endblock %}
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -130,14 +227,17 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">选择要分配的 FRPS</label>
-                            <select class="form-select" name="frps_ids" multiple required>
+                            <select class="form-select select2" name="frps_ids[]" multiple required data-placeholder="请选择要分配的FRPS服务器">
                                 {% for frps in available_frps_list %}
                                 <option value="{{ frps.id }}">
-                                    {{ frps.vms_id }} ({{ frps.external_ip }})
+                                    {{ frps.vms_id }} - {{ frps.external_ip }} {% if frps.datacenter %}({{ frps.datacenter }}){% endif %}
                                 </option>
                                 {% endfor %}
                             </select>
-                            <div class="form-text">按住 Ctrl 键可多选</div>
+                            <div class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                可以输入IP或ID进行搜索，支持多选
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

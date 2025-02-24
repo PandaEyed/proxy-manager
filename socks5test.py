@@ -51,10 +51,10 @@ def test_socks5_proxy(proxy_host, proxy_port, username=None, password=None,
 
 if __name__ == "__main__":
     # 修改为你的 Socks5 代理信息
-    proxy_host = "36.138.49.188"  # 代理 IP
-    proxy_port = 31326  # 代理端口
-    username = "yh2024"  # 代理用户名（如果没有可留空）
-    password = "2024"  # 代理密码（如果没有可留空）
+    proxy_host = "xccx2025.vpsnb.net"  # 代理 IP
+    proxy_port = 38002  # 代理端口
+    username = "20231211"  # 代理用户名
+    password = "u6pdxtud89"  # 代理密码
     test_url = "http://47.110.135.238:8081/getip"  # 测试用的目标 URL
 
     test_socks5_proxy(proxy_host, proxy_port, username, password, test_url)
